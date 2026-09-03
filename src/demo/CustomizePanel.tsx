@@ -3,6 +3,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { contactHref } from "../content";
 import { sendWebRequestEmail } from "../lib/emailjs";
 import { saveLeadLocally } from "../lib/storage";
+import { IMAGE_MAX_DIMENSION, resizeImageToDataUrl } from "../lib/imageResize";
 import type { DemoContent, DemoPhoto, DemoSections } from "./demoTypes";
 
 interface LeadState {
@@ -15,15 +16,6 @@ interface CustomizePanelProps {
   lead: LeadState;
   base: DemoContent;
   onApply: (next: DemoContent) => void;
-}
-
-function readAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
 }
 
 type Status = "idle" | "sending" | "done" | "error";
@@ -44,8 +36,11 @@ export default function CustomizePanel({
   const [open, setOpen] = useState(false);
   const [primaryColor, setPrimaryColor] = useState(base.primaryColor);
   const [secondaryColor, setSecondaryColor] = useState(base.secondaryColor);
-  const [bannerFile, setBannerFile] = useState<string | null>(null);
-  const [galleryFiles, setGalleryFiles] = useState<DemoPhoto[] | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [bannerProcessing, setBannerProcessing] = useState(false);
+  const [galleryPreviews, setGalleryPreviews] = useState<DemoPhoto[]>([]);
+  const [galleryProcessing, setGalleryProcessing] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [sections, setSections] = useState<DemoSections>(base.sections);
   const [phone, setPhone] = useState(lead.phone);
   const [email, setEmail] = useState(lead.email);
@@ -53,20 +48,79 @@ export default function CustomizePanel({
 
   async function handleBannerChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    // Limpia el input: permite volver a elegir el mismo archivo más tarde
+    // (por ejemplo, tras quitarlo) y dispara onChange igual la próxima vez.
+    e.target.value = "";
     if (!file) return;
-    setBannerFile(await readAsDataUrl(file));
+
+    setImageError(null);
+    setBannerProcessing(true);
+    try {
+      const dataUrl = await resizeImageToDataUrl(
+        file,
+        IMAGE_MAX_DIMENSION.banner,
+      );
+      setBannerPreview(dataUrl);
+    } catch {
+      setImageError(
+        `No se pudo cargar "${file.name}". Prueba con otra imagen (JPG o PNG).`,
+      );
+    } finally {
+      setBannerProcessing(false);
+    }
+  }
+
+  function removeBanner() {
+    setBannerPreview(null);
   }
 
   async function handleGalleryChange(e: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []).slice(0, 4);
+    e.target.value = "";
     if (files.length === 0) return;
-    const photos = await Promise.all(
-      files.map(async (file, i) => ({
-        src: await readAsDataUrl(file),
-        alt: `Foto ${i + 1} de ${base.name} subida por el cliente`,
-      })),
+
+    setImageError(null);
+    setGalleryProcessing(true);
+
+    // allSettled en vez de all: si una sola foto falla (formato raro, muy
+    // pesada, corrupta), las demás igual se guardan — antes, una falla
+    // tiraba abajo las 4 sin avisar nada.
+    const results = await Promise.allSettled(
+      files.map((file, i) =>
+        resizeImageToDataUrl(file, IMAGE_MAX_DIMENSION.gallery).then(
+          (src): DemoPhoto => ({
+            src,
+            alt: `Foto ${i + 1} de ${base.name} subida por el cliente`,
+          }),
+        ),
+      ),
     );
-    setGalleryFiles(photos);
+
+    const photos: DemoPhoto[] = [];
+    const failedNames: string[] = [];
+    results.forEach((result, i) => {
+      if (result.status === "fulfilled") {
+        photos.push(result.value);
+      } else {
+        failedNames.push(files[i].name);
+      }
+    });
+
+    setGalleryPreviews(photos);
+    setGalleryProcessing(false);
+    if (failedNames.length > 0) {
+      setImageError(
+        `No se pudieron cargar ${failedNames.length} de ${files.length} imágenes: ${failedNames.join(", ")}.`,
+      );
+    }
+  }
+
+  function removeGalleryPhoto(index: number) {
+    setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function clearGallery() {
+    setGalleryPreviews([]);
   }
 
   function toggleSection(key: keyof DemoSections, checked: boolean) {
@@ -87,8 +141,8 @@ export default function CustomizePanel({
       ...base,
       primaryColor,
       secondaryColor,
-      banner: bannerFile ?? base.banner,
-      gallery: galleryFiles ?? base.gallery,
+      banner: bannerPreview ?? base.banner,
+      gallery: galleryPreviews.length > 0 ? galleryPreviews : base.gallery,
       sections,
       phone: phone.trim(),
       email: email.trim(),
@@ -103,8 +157,8 @@ export default function CustomizePanel({
       email: email.trim(),
       primaryColor,
       secondaryColor,
-      bannerUploaded: Boolean(bannerFile),
-      galleryImagesUploaded: galleryFiles?.length ?? 0,
+      bannerUploaded: Boolean(bannerPreview),
+      galleryImagesUploaded: galleryPreviews.length,
       sections,
     });
 
@@ -126,8 +180,8 @@ export default function CustomizePanel({
         `Correo: ${email.trim() || "(no proporcionado)"}`,
         `Color principal: ${primaryColor}`,
         `Color secundario: ${secondaryColor}`,
-        `Banner subido: ${bannerFile ? "Sí" : "No (se usó imagen de muestra)"}`,
-        `Imágenes de carrusel subidas: ${galleryFiles?.length ?? 0}`,
+        `Banner subido: ${bannerPreview ? "Sí" : "No (se usó imagen de muestra)"}`,
+        `Imágenes de carrusel subidas: ${galleryPreviews.length}`,
         `Secciones visibles: ${sectionsVisibles}`,
       ].join("\n"),
     });
@@ -140,7 +194,7 @@ export default function CustomizePanel({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between bg-[var(--color-gold,#f2b134)]/10 px-4 py-3 text-left font-semibold sm:px-6"
+        className="flex w-full items-center justify-between bg-[var(--color-gold,#f2b134)]/10 px-4 py-3 text-left font-semibold transition hover:bg-[var(--color-gold,#f2b134)]/20 sm:px-6"
       >
         <span>🎨 Personaliza tu web {open ? "▾" : "▸"}</span>
         {status === "done" && (
@@ -215,9 +269,34 @@ export default function CustomizePanel({
                   type="file"
                   accept="image/*"
                   onChange={handleBannerChange}
+                  disabled={bannerProcessing}
                   className="mt-1 w-full text-sm"
                 />
+                {bannerProcessing && (
+                  <p className="mt-2 text-xs text-black/50">
+                    Procesando imagen...
+                  </p>
+                )}
+                {bannerPreview && !bannerProcessing && (
+                  <div className="relative mt-2 inline-block">
+                    <img
+                      src={bannerPreview}
+                      alt="Vista previa del banner"
+                      className="h-20 w-32 rounded-md border border-black/10 object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeBanner}
+                      aria-label="Quitar imagen de portada"
+                      title="Quitar"
+                      className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs font-bold text-white transition hover:bg-red-600"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </div>
+
               <div>
                 <label className="block text-sm font-medium" htmlFor="gallery">
                   Imágenes para el carrusel (máx. 4)
@@ -228,9 +307,55 @@ export default function CustomizePanel({
                   accept="image/*"
                   multiple
                   onChange={handleGalleryChange}
+                  disabled={galleryProcessing}
                   className="mt-1 w-full text-sm"
                 />
+                {galleryProcessing && (
+                  <p className="mt-2 text-xs text-black/50">
+                    Procesando imágenes...
+                  </p>
+                )}
+                {galleryPreviews.length > 0 && !galleryProcessing && (
+                  <div className="mt-2">
+                    <div className="flex flex-wrap gap-2">
+                      {galleryPreviews.map((photo, i) => (
+                        <div key={photo.src + i} className="relative">
+                          <img
+                            src={photo.src}
+                            alt={photo.alt}
+                            className="h-16 w-16 rounded-md border border-black/10 object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryPhoto(i)}
+                            aria-label={`Quitar imagen ${i + 1} del carrusel`}
+                            title="Quitar"
+                            className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-xs font-bold text-white transition hover:bg-red-600"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={clearGallery}
+                      className="mt-2 text-xs font-medium text-black/50 underline transition hover:text-red-600"
+                    >
+                      Quitar todas
+                    </button>
+                  </div>
+                )}
               </div>
+
+              {imageError && (
+                <p
+                  role="alert"
+                  className="text-sm font-medium text-red-600 sm:col-span-2"
+                >
+                  {imageError}
+                </p>
+              )}
 
               <fieldset className="sm:col-span-2">
                 <legend className="text-sm font-medium">

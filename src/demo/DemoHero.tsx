@@ -21,12 +21,18 @@ export default function DemoHero({ content }: Props) {
           {content.tagline}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <span className="inline-flex items-center justify-center rounded-md bg-[var(--color-brand)] px-6 py-3 font-semibold text-white opacity-90">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-md bg-[var(--color-brand)] px-6 py-3 font-semibold text-white transition hover:bg-[var(--color-brand-dark)]"
+          >
             Reservar ahora
-          </span>
-          <span className="inline-flex items-center justify-center rounded-md border-2 border-white bg-white px-6 py-3 font-semibold text-[var(--color-brand-dark)] opacity-90">
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-md border-2 border-white bg-white px-6 py-3 font-semibold text-[var(--color-brand-dark)] transition hover:bg-white/85"
+          >
             Contáctanos
-          </span>
+          </button>
         </div>
         <p className="mt-6 text-xs text-white/70">
           * Botones de muestra — en tu web real irían conectados a WhatsApp o

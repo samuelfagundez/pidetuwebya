@@ -34,14 +34,17 @@ export default function DemoHeader({ content }: Props) {
           {content.phone && (
             <a
               href={`tel:${content.phone.replace(/\s/g, "")}`}
-              className="rounded-md border-2 border-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-[var(--color-brand)]"
+              className="rounded-md border-2 border-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-[var(--color-brand)] transition hover:bg-[var(--color-brand)] hover:text-white"
             >
               Llamar
             </a>
           )}
-          <span className="rounded-md bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white opacity-90">
+          <button
+            type="button"
+            className="rounded-md bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-dark)]"
+          >
             Reservar
-          </span>
+          </button>
         </div>
       </div>
     </header>
