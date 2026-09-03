@@ -53,10 +53,11 @@ h3,
   @apply inline-flex items-center justify-center rounded-md border-2 border-[var(--color-brand)] px-6 py-3 font-semibold text-[var(--color-brand)] transition hover:bg-[var(--color-brand)] hover:text-white;
 }
 
-/* CTA principal de conversión: "Pide tu web ya". Cambio de color (no sólo
-   brillo) al pasar el mouse, para que se note claramente que es clickable. */
+/* CTA principal de conversión: "Pide tu web ya". Al pasar el mouse se
+   invierte a fondo morado oscuro + texto blanco (no sólo un dorado un
+   poco más oscuro) para que el cambio sea inconfundible. */
 .btn-accent {
-  @apply inline-flex items-center justify-center rounded-md bg-[var(--color-gold)] px-6 py-3 font-semibold text-[var(--color-brand-dark)] shadow-sm transition hover:bg-[#e0a12b] hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand)];
+  @apply inline-flex items-center justify-center rounded-md bg-[var(--color-gold)] px-6 py-3 font-semibold text-[var(--color-brand-dark)] shadow-sm transition-colors duration-150 hover:bg-[var(--color-brand-dark)] hover:text-white hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand)];
 }
 
 /* CTA de contacto directo: siempre lleva a WhatsApp. */
@@ -66,7 +67,7 @@ h3,
 
 /* Variantes compactas para el header. */
 .btn-accent-sm {
-  @apply inline-flex items-center justify-center rounded-md bg-[var(--color-gold)] px-4 py-2 text-sm font-semibold text-[var(--color-brand-dark)] transition hover:bg-[#e0a12b];
+  @apply inline-flex items-center justify-center rounded-md bg-[var(--color-gold)] px-4 py-2 text-sm font-semibold text-[var(--color-brand-dark)] transition-colors duration-150 hover:bg-[var(--color-brand-dark)] hover:text-white;
 }
 
 .btn-whatsapp-sm {
