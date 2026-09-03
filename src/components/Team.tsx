@@ -23,6 +23,18 @@ export default function Team() {
                     ? assetUrl(member.photo)
                     : placeholderImage(member.name, i, 300, 300)
                 }
+                onError={(e) => {
+                  // Si la foto real todavía no se subió a /public/team (o la
+                  // ruta está mal), no mostramos el ícono de imagen rota:
+                  // caemos al avatar de muestra generado con las iniciales.
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = placeholderImage(
+                    member.name,
+                    i,
+                    300,
+                    300,
+                  );
+                }}
                 alt={`Foto de ${member.name}`}
                 loading="lazy"
                 className="h-28 w-28 rounded-full object-cover"

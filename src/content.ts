@@ -57,29 +57,31 @@ export const content = {
   },
 
   // -------------------------------------------------------------------
-  // Equipo — TODO(cliente): reemplazar con las fotos, nombres, cargos y
-  // descripciones reales. Mientras no haya foto, se genera un avatar de
-  // muestra automáticamente (ver Team.tsx). Añade o quita objetos según
-  // el número real de personas del equipo.
+  // Equipo. Las fotos van en /public/team/<archivo> — TODO(cliente): subir
+  // los 3 archivos ahí con estos nombres exactos (vía GitHub, Add file ->
+  // Upload files, en la carpeta public/team/); en cuanto existan, el sitio
+  // los toma automáticamente en el siguiente deploy. Mientras no exista el
+  // archivo, se muestra un avatar de muestra generado con las iniciales
+  // (ver Team.tsx).
   // -------------------------------------------------------------------
   team: [
     {
-      photo: "",
-      name: "Nombre pendiente",
-      role: "Cargo pendiente",
-      bio: "Descripción breve pendiente — cuéntanos en 1-2 frases qué hace en el equipo.",
+      photo: "/team/carlos-torres.jpg",
+      name: "Carlos Torres",
+      role: "Ingeniero de Infraestructura y Rendimiento",
+      bio: "Ingeniero de Telecomunicaciones especializado en redes de alta disponibilidad para proveedores de internet. En PideTuWebYa aplica esa misma exigencia técnica para que tu web cargue rápido y esté siempre en línea, sin caídas ni sorpresas.",
     },
     {
-      photo: "",
-      name: "Nombre pendiente",
-      role: "Cargo pendiente",
-      bio: "Descripción breve pendiente — cuéntanos en 1-2 frases qué hace en el equipo.",
+      photo: "/team/daniela-oliveira.jpg",
+      name: "Daniela Oliveira",
+      role: "Coordinadora de Proyectos y Producción",
+      bio: "Ingeniera de Materiales especializada en convertir requerimientos técnicos complejos en soluciones eficientes y de calidad. Coordina cada solicitud para que tu web se entregue a tiempo y con el estándar que tu marca merece.",
     },
     {
-      photo: "",
-      name: "Nombre pendiente",
-      role: "Cargo pendiente",
-      bio: "Descripción breve pendiente — cuéntanos en 1-2 frases qué hace en el equipo.",
+      photo: "/team/samuel-fagundez.jpg",
+      name: "Samuel Fagundez",
+      role: "Fundador & Líder Técnico",
+      bio: "Ingeniero de software con más de 8 años construyendo aplicaciones web escalables para empresas internacionales. Lidera el equipo técnico de PideTuWebYa para que cada página se entregue rápida, confiable y lista para vender desde el primer día.",
     },
   ] as TeamMember[],
 };
