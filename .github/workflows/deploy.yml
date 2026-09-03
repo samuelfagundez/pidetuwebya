@@ -32,7 +32,9 @@ jobs:
 
       - name: Build
         env:
-          VITE_BASE: /${{ github.event.repository.name }}/
+          # Dominio propio (pidetuwebya.es) conectado vía public/CNAME: el
+          # sitio vive en la raíz, no en /<repo>/, así que no se sobreescribe
+          # VITE_BASE (vite.config.ts ya usa "/" por defecto).
           VITE_WHATSAPP_NUMBER: ${{ vars.VITE_WHATSAPP_NUMBER }}
           VITE_EMAILJS_SERVICE_ID: ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
           VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}

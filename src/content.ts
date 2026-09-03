@@ -47,7 +47,7 @@ export const content = {
   email: "",
 
   // TODO: ajustar al dominio/URL final del sitio cuando se publique.
-  siteUrl: "https://samuelfagundez.github.io/pidetuwebya/",
+  siteUrl: "https://pidetuwebya.es/",
 
   social: {
     // TODO(cliente): enlaces de redes sociales (dejar vacío si no aplica).
