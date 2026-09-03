@@ -31,6 +31,12 @@ export default function DemoHeader({ content }: Props) {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-3 lg:flex">
+          <button
+            type="button"
+            className="rounded-md bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-dark)]"
+          >
+            Reservar
+          </button>
           {content.phone && (
             <a
               href={`tel:${content.phone.replace(/\s/g, "")}`}
@@ -39,12 +45,6 @@ export default function DemoHeader({ content }: Props) {
               Llamar
             </a>
           )}
-          <button
-            type="button"
-            className="rounded-md bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-dark)]"
-          >
-            Reservar
-          </button>
         </div>
       </div>
     </header>
