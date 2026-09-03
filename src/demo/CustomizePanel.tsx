@@ -108,21 +108,28 @@ export default function CustomizePanel({
       sections,
     });
 
+    const sectionsVisibles = (Object.entries(sections) as [string, boolean][])
+      .filter(([, visible]) => visible)
+      .map(([key]) => key)
+      .join(", ");
+
+    // "name"/"email"/"title" alimentan From Name / Reply To / Subject del
+    // template de EmailJS; "message" es el cuerpo con el detalle completo.
     await sendWebRequestEmail({
-      company_name: base.name,
-      phone: phone.trim() || "(no proporcionado)",
-      email: email.trim() || "(no proporcionado)",
-      primary_color: primaryColor,
-      secondary_color: secondaryColor,
-      banner_uploaded: bannerFile ? "Sí" : "No (se usó imagen de muestra)",
-      gallery_images: String(galleryFiles?.length ?? 0),
-      sections_visibles: (
-        Object.entries(sections) as [string, boolean][]
-      )
-        .filter(([, visible]) => visible)
-        .map(([key]) => key)
-        .join(", "),
-      origin: "Formulario 2 - Solicitar web ya",
+      name: base.name,
+      email: email.trim(),
+      title: `🎨 Solicitud de web: ${base.name} — Solicitar web ya`,
+      message: [
+        "Nueva solicitud desde el Formulario 2 (Solicitar web ya):",
+        `Empresa: ${base.name}`,
+        `Teléfono: ${phone.trim() || "(no proporcionado)"}`,
+        `Correo: ${email.trim() || "(no proporcionado)"}`,
+        `Color principal: ${primaryColor}`,
+        `Color secundario: ${secondaryColor}`,
+        `Banner subido: ${bannerFile ? "Sí" : "No (se usó imagen de muestra)"}`,
+        `Imágenes de carrusel subidas: ${galleryFiles?.length ?? 0}`,
+        `Secciones visibles: ${sectionsVisibles}`,
+      ].join("\n"),
     });
 
     setStatus("done");

@@ -35,21 +35,43 @@ Se disparan **dos correos**:
 
 ### Configurar EmailJS
 
-1. Crea una cuenta en https://www.emailjs.com y un **Service** conectado a
-   tu correo.
-2. Crea dos **Templates**: uno para el lead inicial y otro para la
-   solicitud final (puedes usar los mismos parámetros que ya se envían
-   desde `src/lib/emailjs.ts` / `LeadFormModal.tsx` / `CustomizePanel.tsx`).
-3. Copia `.env.example` a `.env.local` y completa:
-   ```
-   VITE_WHATSAPP_NUMBER=
-   VITE_EMAILJS_SERVICE_ID=
-   VITE_EMAILJS_PUBLIC_KEY=
-   VITE_EMAILJS_TEMPLATE_LEAD=
-   VITE_EMAILJS_TEMPLATE_REQUEST=
-   ```
-4. Para el despliegue en GitHub Pages, añade esas mismas claves como
-   **Secrets/Variables** del repositorio (ver `.github/workflows/deploy.yml`).
+**Todas las credenciales (Service ID, Template ID y Public Key) se leen
+exclusivamente de variables de entorno — nunca están hardcodeadas en el
+código ni en el repo.** En producción (GitHub Pages) las inyecta el
+workflow de deploy desde **GitHub Secrets** del repositorio; en local se
+leen de `.env.local` (gitignored, ver `.env.example`).
+
+Para configurarlas en GitHub: **Settings → Secrets and variables →
+Actions → New repository secret**, y crea:
+
+```
+VITE_EMAILJS_SERVICE_ID
+VITE_EMAILJS_PUBLIC_KEY
+VITE_EMAILJS_TEMPLATE_LEAD        (por ahora, mismo valor que TEMPLATE_REQUEST)
+VITE_EMAILJS_TEMPLATE_REQUEST
+```
+
+El template configurado en EmailJS usa estas variables:
+
+```
+From Name: {{name}}    Reply To: {{email}}    Subject: {{title}}
+```
+
+y su cuerpo debe incluir `{{message}}` para mostrar el detalle completo
+que le manda el código (empresa, teléfono, colores, imágenes, secciones,
+etc.). Por ahora sólo existe un template en EmailJS, así que se reutiliza
+para los dos correos (lead inicial y solicitud final), diferenciados por
+asunto y cuerpo.
+
+**Aviso importante:** esta app es una SPA sin backend, así que estos
+valores terminan igual incrustados en el JS que descarga cualquier
+visitante una vez publicado el sitio — GitHub Secrets evita que vivan en
+el código-fuente o el historial de git del repo, pero no los "esconde" del
+sitio en producción (eso es inherente a que EmailJS funcione 100% desde el
+navegador, no un descuido de esta app). La mitigación real contra abuso es
+restringir los dominios permitidos para el Public Key desde el dashboard
+de EmailJS (**Account → Security → Allowed origins**), limitándolo al
+dominio real del sitio.
 
 Mientras estas variables no estén configuradas, la app sigue funcionando
 con normalidad: sólo se omite el envío de correo (se avisa por consola) y

@@ -62,11 +62,18 @@ export default function LeadFormModal() {
 
     // El envío no bloquea la navegación: si EmailJS no está configurado o
     // falla, el lead ya quedó guardado localmente y el usuario no se entera.
+    // "name"/"email"/"title" alimentan From Name / Reply To / Subject del
+    // template de EmailJS; "message" es el cuerpo con el detalle completo.
     void sendLeadCapturedEmail({
-      company_name: lead.companyName,
-      phone: lead.phone || "(no proporcionado)",
-      email: lead.email || "(no proporcionado)",
-      origin: "Formulario 1 - Pide tu web ya",
+      name: lead.companyName,
+      email: lead.email,
+      title: `🌐 Nuevo lead: ${lead.companyName} — Pide tu web ya`,
+      message: [
+        "Nueva solicitud desde el Formulario 1 (Pide tu web ya):",
+        `Empresa: ${lead.companyName}`,
+        `Teléfono: ${lead.phone || "(no proporcionado)"}`,
+        `Correo: ${lead.email || "(no proporcionado)"}`,
+      ].join("\n"),
     });
 
     close();
