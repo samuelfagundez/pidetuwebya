@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://samuelfagundez.github.io/pidetuwebya/sitemap.xml

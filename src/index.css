@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Poppins", "system-ui", sans-serif;
+  --font-body: "Inter", "system-ui", sans-serif;
+
+  /* Paleta de marca de PideTuWebYa: violeta tecnológico como color
+     principal, casi-negro azulado para contraste, y dorado como acento
+     de conversión (botones de "Pide tu web ya"). */
+  --color-ink: #17151c;
+  --color-paper: #f8f7fb;
+  --color-brand: #6d5ef0;
+  --color-brand-dark: #241f4e;
+  --color-gold: #f2b134;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+}
+
+.section-title {
+  @apply font-display text-3xl sm:text-4xl font-bold text-[var(--color-brand-dark)];
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-md bg-[var(--color-brand)] px-6 py-3 font-semibold text-white transition hover:bg-[var(--color-brand-dark)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)];
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-md border-2 border-[var(--color-brand)] px-6 py-3 font-semibold text-[var(--color-brand)] transition hover:bg-[var(--color-brand)] hover:text-white;
+}
+
+/* CTA principal de conversión: "Pide tu web ya". */
+.btn-accent {
+  @apply inline-flex items-center justify-center rounded-md bg-[var(--color-gold)] px-6 py-3 font-semibold text-[var(--color-brand-dark)] shadow-sm transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand)];
+}
+
+/* CTA de contacto directo: siempre lleva a WhatsApp. */
+.btn-whatsapp {
+  @apply inline-flex items-center justify-center gap-2 rounded-md border-2 border-[#25D366] px-6 py-3 font-semibold text-[#128c4a] transition hover:bg-[#25D366] hover:text-white;
+}
+
+/* Variantes compactas para el header. */
+.btn-accent-sm {
+  @apply inline-flex items-center justify-center rounded-md bg-[var(--color-gold)] px-4 py-2 text-sm font-semibold text-[var(--color-brand-dark)] transition hover:brightness-95;
+}
+
+.btn-whatsapp-sm {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-md border-2 border-[#25D366] px-4 py-2 text-sm font-semibold text-[#128c4a] transition hover:bg-[#25D366] hover:text-white;
+}
+
+.btn-primary-sm {
+  @apply inline-flex items-center justify-center rounded-md bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-dark)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)];
+}
+
+.btn-secondary-sm {
+  @apply inline-flex items-center justify-center rounded-md border-2 border-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-[var(--color-brand)] transition hover:bg-[var(--color-brand)] hover:text-white;
+}
+
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-[var(--color-brand)] focus:px-4 focus:py-2 focus:text-white;
+}
