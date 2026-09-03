@@ -35,6 +35,13 @@ export default function Header() {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-3 lg:flex">
+          <button
+            type="button"
+            onClick={openLeadModal}
+            className="btn-accent-sm"
+          >
+            Pide tu web ya
+          </button>
           <a
             href={contactHref()}
             target="_blank"
@@ -43,13 +50,6 @@ export default function Header() {
           >
             Contáctanos
           </a>
-          <button
-            type="button"
-            onClick={openLeadModal}
-            className="btn-accent-sm"
-          >
-            Pide tu web ya
-          </button>
         </div>
 
         <button
