@@ -4,14 +4,14 @@
   --font-display: "Poppins", "system-ui", sans-serif;
   --font-body: "Inter", "system-ui", sans-serif;
 
-  /* Paleta de marca de PideTuWebYa: violeta tecnológico como color
-     principal, casi-negro azulado para contraste, y dorado como acento
-     de conversión (botones de "Pide tu web ya"). */
+  /* Paleta de marca de PideTuWebYa (kit oficial de logo/banners): azul
+     marino como color principal, azul marino más oscuro para contraste,
+     y dorado como acento de conversión (botones de "Pide tu web ya"). */
   --color-ink: #17151c;
   --color-paper: #f8f7fb;
-  --color-brand: #6d5ef0;
-  --color-brand-dark: #241f4e;
-  --color-gold: #f2b134;
+  --color-brand: #2c3a5e;
+  --color-brand-dark: #1e2a47;
+  --color-gold: #d9a73b;
 }
 
 html {

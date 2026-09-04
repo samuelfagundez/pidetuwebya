@@ -190,11 +190,11 @@ export default function CustomizePanel({
   }
 
   return (
-    <div className="sticky bottom-0 z-[60] border-t-2 border-[var(--color-gold,#f2b134)] bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.12)]">
+    <div className="sticky bottom-0 z-[60] border-t-2 border-[var(--color-gold,#d9a73b)] bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.12)]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between bg-[var(--color-gold,#f2b134)]/10 px-4 py-3 text-left font-semibold transition hover:bg-[var(--color-gold,#f2b134)]/20 sm:px-6"
+        className="flex w-full items-center justify-between bg-[var(--color-gold,#d9a73b)]/10 px-4 py-3 text-left font-semibold transition hover:bg-[var(--color-gold,#d9a73b)]/20 sm:px-6"
       >
         <span>🎨 Personaliza tu web {open ? "▾" : "▸"}</span>
         {status === "done" && (

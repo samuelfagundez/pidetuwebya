@@ -1,8 +1,8 @@
 import { placeholderImage } from "../lib/placeholderImage";
 import type { DemoContent } from "./demoTypes";
 
-export const DEMO_DEFAULT_PRIMARY = "#6d5ef0";
-export const DEMO_DEFAULT_SECONDARY = "#241f4e";
+export const DEMO_DEFAULT_PRIMARY = "#2c3a5e";
+export const DEMO_DEFAULT_SECONDARY = "#1e2a47";
 
 /**
  * Genera el contenido moqueado de la web de muestra a partir del nombre de
