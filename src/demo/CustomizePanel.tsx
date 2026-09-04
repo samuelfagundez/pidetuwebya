@@ -10,6 +10,7 @@ import {
   resizeImageToDataUrl,
 } from "../lib/imageResize";
 import type { DemoContent, DemoPhoto, DemoSections } from "./demoTypes";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 interface LeadState {
   companyName: string;
@@ -536,14 +537,14 @@ export default function CustomizePanel({
                 <label className="block text-sm font-medium" htmlFor="address">
                   Dirección de tu negocio
                 </label>
-                <input
-                  id="address"
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-black/15 px-3 py-2 text-sm"
-                  placeholder="Ej. Calle Mayor 15, Madrid"
-                />
+                <div className="mt-1">
+                  <AddressAutocomplete
+                    id="address"
+                    value={address}
+                    onChange={setAddress}
+                    placeholder="Ej. Calle Mayor 15, Madrid"
+                  />
+                </div>
                 <p className="mt-1 text-xs text-black/40">
                   La usamos para mostrar el mapa real de tu negocio en la
                   sección "Ubicación" — sin necesidad de buscar ningún link.
