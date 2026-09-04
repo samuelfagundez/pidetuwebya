@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import Modal from "./Modal";
 import { useLeadModal } from "../context/useLeadModal";
-import { sendLeadCapturedEmail } from "../lib/emailjs";
+import { sendLeadCapturedEmail } from "../lib/mailer";
 import { saveLeadLocally } from "../lib/storage";
 
 /**

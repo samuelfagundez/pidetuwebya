@@ -36,10 +36,10 @@ jobs:
           # sitio vive en la raíz, no en /<repo>/, así que no se sobreescribe
           # VITE_BASE (vite.config.ts ya usa "/" por defecto).
           VITE_WHATSAPP_NUMBER: ${{ vars.VITE_WHATSAPP_NUMBER }}
-          VITE_EMAILJS_SERVICE_ID: ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
-          VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
-          VITE_EMAILJS_TEMPLATE_LEAD: ${{ secrets.VITE_EMAILJS_TEMPLATE_LEAD }}
-          VITE_EMAILJS_TEMPLATE_REQUEST: ${{ secrets.VITE_EMAILJS_TEMPLATE_REQUEST }}
+          # URL del Worker de Cloudflare que envía los correos (ver
+          # worker/mailer.js) — no es secreta, el propio Worker filtra por
+          # dominio, pero va por variable para no tocar código si cambia.
+          VITE_MAILER_URL: ${{ vars.VITE_MAILER_URL }}
         run: npm run build
 
       # Fallback para rutas desconocidas en GitHub Pages (SPA)
