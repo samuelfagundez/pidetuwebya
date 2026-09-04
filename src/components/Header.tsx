@@ -15,11 +15,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-[var(--color-paper)]/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <a
-          href="#"
-          className="shrink-0 font-display text-xl font-bold text-[var(--color-brand-dark)]"
-        >
-          {content.name}
+        <a href="#" className="shrink-0" aria-label={content.name}>
+          <img
+            src="/brand/logo-horizontal.png"
+            alt={content.name}
+            className="h-8 w-auto sm:h-9"
+          />
         </a>
 
         <nav className="hidden gap-6 lg:flex" aria-label="Principal">
