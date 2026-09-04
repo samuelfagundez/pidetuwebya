@@ -18,14 +18,11 @@
  * configura aparte, en Settings -> Variables and Secrets.
  */
 
-// Dominios desde los que se acepta una petición. El de producción es el
-// único que importa en la práctica; los de localhost son solo para poder
-// probar en local durante desarrollo (npm run dev / npm run preview).
-const ALLOWED_ORIGINS = [
-  "https://pidetuwebya.es",
-  "http://localhost:5173",
-  "http://localhost:4173",
-];
+// Dominio desde el que se acepta una petición — solo el sitio en
+// producción. (Nota: esto significa que el envío de correo no se puede
+// probar en local, solo en el sitio real — trade-off aceptado a propósito
+// por seguridad, para no abrir la puerta a orígenes localhost.)
+const ALLOWED_ORIGINS = ["https://pidetuwebya.es"];
 
 const FROM = "PideTuWebYa <notificaciones@pidetuwebya.es>";
 const TO = "contacto@pidetuwebya.es";
