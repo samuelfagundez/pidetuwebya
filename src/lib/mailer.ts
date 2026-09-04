@@ -5,17 +5,14 @@
 // correo. A diferencia de EmailJS, la clave nunca llega al navegador y el
 // Worker rechaza cualquier petición que no venga de pidetuwebya.es.
 //
-// La URL del Worker se lee de VITE_MAILER_URL — no es secreta (el propio
-// Worker es quien filtra por dominio), pero igual va por variable de
-// entorno para no tener que tocar código si cambia. En producción
-// (GitHub Pages) la inyecta el workflow de deploy desde una Variable del
-// repositorio (ver .github/workflows/deploy.yml); en local se lee de
-// ".env.local" (gitignored — ver .env.example). Si no está configurada,
-// se hace un no-op silencioso con aviso en consola, igual que antes con
-// EmailJS, para que el sitio nunca se rompa por esto.
-// ---------------------------------------------------------------------------
-
-const MAILER_URL = import.meta.env.VITE_MAILER_URL;
+// La URL del Worker no es secreta (el propio Worker es quien filtra por
+// dominio — ver ALLOWED_ORIGINS en worker/mailer.js), así que puede ir
+// como valor por defecto aquí mismo (igual que WHATSAPP_NUMBER en
+// content.ts), sobreescribible con VITE_MAILER_URL por si el Worker
+// cambia de nombre/dominio sin tener que tocar código.
+const MAILER_URL =
+  import.meta.env.VITE_MAILER_URL ||
+  "https://pidetuwebya-mailer.samuelfagundez97.workers.dev";
 
 export interface MailAttachment {
   /** Nombre de archivo tal como lo verá quien reciba el correo. */
