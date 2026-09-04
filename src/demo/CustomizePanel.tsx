@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { contactHref } from "../content";
-import { sendWebRequestEmail } from "../lib/emailjs";
+import { sendWebRequestEmail } from "../lib/mailer";
 import { saveLeadLocally } from "../lib/storage";
 import {
   IMAGE_MAX_DIMENSION,
@@ -39,7 +39,7 @@ const GALLERY_LIMIT = 3;
  * imagen de portada, hasta 3 imágenes de carrusel y qué secciones mostrar
  * ("agregar o eliminar elementos"). Los cambios NO se aplican en vivo:
  * sólo se reflejan en la vista previa al pulsar "Solicitar web ya", que
- * además dispara el segundo correo de aviso (EmailJS) con todo lo que el
+ * además dispara el segundo correo de aviso (vía el Worker/Resend) con todo lo que el
  * usuario configuró.
  */
 export default function CustomizePanel({
@@ -222,8 +222,18 @@ export default function CustomizePanel({
       .map(([key]) => key)
       .join(", ");
 
-    // "name"/"email"/"title" alimentan From Name / Reply To / Subject del
-    // template de EmailJS; "message" es el cuerpo con el detalle completo.
+    // Las fotos que el cliente subió van como adjuntos reales del correo
+    // (no embebidas en el cuerpo — Gmail y otros bloquean eso).
+    const attachments = [
+      ...(bannerUpload
+        ? [{ filename: `portada-${bannerUpload.name}`, dataUrl: bannerUpload.src }]
+        : []),
+      ...galleryUploads.map((u, i) => ({
+        filename: `galeria-${i + 1}-${u.name}`,
+        dataUrl: u.src,
+      })),
+    ];
+
     await sendWebRequestEmail({
       name: base.name,
       email: email.trim(),
@@ -235,11 +245,12 @@ export default function CustomizePanel({
         `Correo: ${email.trim() || "(no proporcionado)"}`,
         `Color principal: ${primaryColor}`,
         `Color secundario: ${secondaryColor}`,
-        `Banner subido: ${bannerUpload ? "Sí" : "No (se usó imagen de muestra)"}`,
-        `Imágenes de carrusel subidas: ${galleryUploads.length}`,
+        `Banner subido: ${bannerUpload ? "Sí (adjunto)" : "No (se usó imagen de muestra)"}`,
+        `Imágenes de carrusel subidas: ${galleryUploads.length}${galleryUploads.length > 0 ? " (adjuntas)" : ""}`,
         `Secciones visibles: ${sectionsVisibles}`,
         `Otra sección solicitada: ${otherSection.trim() || "(ninguna)"}`,
       ].join("\n"),
+      attachments: attachments.length > 0 ? attachments : undefined,
     });
 
     setStatus("done");

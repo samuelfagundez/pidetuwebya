@@ -2,14 +2,14 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import Modal from "./Modal";
 import { useLeadModal } from "../context/useLeadModal";
-import { sendLeadCapturedEmail } from "../lib/emailjs";
+import { sendLeadCapturedEmail } from "../lib/mailer";
 import { saveLeadLocally } from "../lib/storage";
 
 /**
  * Formulario 1 — "Pide tu web ya": pide el nombre de la empresa, el
  * teléfono y el correo de contacto (los tres son obligatorios). Al enviar:
  *  1. Se guarda el lead en localStorage (respaldo sin backend).
- *  2. Se dispara un correo a nosotros vía EmailJS.
+ *  2. Se dispara un correo a nosotros vía el Worker de correo (mailer.ts).
  *  3. Se abre /pide-tu-web en una pestaña nueva, con los datos del lead
  *     como parámetros de la URL (no por router state, para que la nueva
  *     pestaña — que no comparte el historial de navegación — pueda leerlos
@@ -65,10 +65,10 @@ export default function LeadFormModal() {
 
     saveLeadLocally({ type: "lead_captured", ...lead });
 
-    // El envío no bloquea la apertura de la pestaña: si EmailJS no está
+    // El envío no bloquea la apertura de la pestaña: si el Worker no está
     // configurado o falla, el lead ya quedó guardado localmente.
     // "name"/"email"/"title" alimentan From Name / Reply To / Subject del
-    // template de EmailJS; "message" es el cuerpo con el detalle completo.
+    // Worker/Resend; "message" es el cuerpo con el detalle completo.
     void sendLeadCapturedEmail({
       name: lead.companyName,
       email: lead.email,

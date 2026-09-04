@@ -20,62 +20,52 @@ prehechas. Estructura basada en el stack del repo [`punk`](https://github.com/sa
    el carrusel, y mostrar/ocultar secciones. Los cambios sólo se aplican al
    pulsar **"Solicitar web ya"**, que también envía un correo de aviso.
 
-## Captura de leads (sin backend)
+## Captura de leads (sin backend propio)
 
-No hay servidor: el aviso de cada solicitud se envía por correo con
-[EmailJS](https://www.emailjs.com) desde el propio navegador, y además se
-guarda una copia de respaldo en `localStorage` (clave `ptw_leads`).
+No hay servidor propio para la SPA: el aviso de cada solicitud se envía
+por correo llamando a un **Worker de Cloudflare** (`worker/mailer.js`),
+que a su vez usa [Resend](https://resend.com) para mandar el correo.
+Además se guarda una copia de respaldo en `localStorage` (clave
+`ptw_leads`).
 
 Se disparan **dos correos**:
 
-- Al enviar el Formulario 1 ("Pide tu web ya"): nombre de empresa + teléfono
-  y/o correo.
+- Al enviar el Formulario 1 ("Pide tu web ya"): nombre de empresa +
+  teléfono y correo.
 - Al pulsar "Solicitar web ya" en el panel de personalización: colores
-  elegidos, si subió banner/imágenes, secciones visibles y su contacto.
+  elegidos, secciones visibles, su contacto, y **el banner + hasta 3
+  fotos de galería que haya subido, como adjuntos reales del correo**.
 
-### Configurar EmailJS
+### Cómo está protegido (y por qué no es como EmailJS)
 
-**Todas las credenciales (Service ID, Template ID y Public Key) se leen
-exclusivamente de variables de entorno — nunca están hardcodeadas en el
-código ni en el repo.** En producción (GitHub Pages) las inyecta el
-workflow de deploy desde **GitHub Secrets** del repositorio; en local se
-leen de `.env.local` (gitignored, ver `.env.example`).
+La clave real (`RESEND_API_KEY`) vive **solo dentro del Worker**, guardada
+como *Secret* en Cloudflare — nunca llega al navegador ni al código de
+este repo. El propio Worker además rechaza cualquier petición cuyo
+`Origin` no sea `https://pidetuwebya.es` (ver `ALLOWED_ORIGINS` en
+`worker/mailer.js`). Esto es justo lo que EmailJS no permitía hacer en su
+plan gratuito (restringir por dominio quién puede usar la clave pública),
+y la razón del cambio.
 
-Para configurarlas en GitHub: **Settings → Secrets and variables →
-Actions → New repository secret**, y crea:
+La URL del Worker (`VITE_MAILER_URL`) **no es secreta** — es pública y
+está pensada para ser conocida, ya que la seguridad real la da la
+validación de origen del propio Worker, no que la URL sea difícil de
+adivinar. Por eso va como valor por defecto en `src/lib/mailer.ts`,
+sobreescribible con una **Variable** (no Secret) del repo si el Worker
+cambia de nombre/dominio.
 
-```
-VITE_EMAILJS_SERVICE_ID
-VITE_EMAILJS_PUBLIC_KEY
-VITE_EMAILJS_TEMPLATE_LEAD        (por ahora, mismo valor que TEMPLATE_REQUEST)
-VITE_EMAILJS_TEMPLATE_REQUEST
-```
+### Desplegar el Worker
 
-El template configurado en EmailJS usa estas variables:
+`worker/mailer.js` es la fuente de verdad, pero Cloudflare no lo lee del
+repo automáticamente: hay que copiar su contenido al editor del Worker en
+el dashboard de Cloudflare (Workers & Pages → el Worker → *Edit code*) y
+darle *Deploy* cada vez que cambie. El secreto se configura aparte, en
+*Settings → Variables and Secrets* del Worker (`RESEND_API_KEY`, tipo
+*Secret*).
 
-```
-From Name: {{name}}    Reply To: {{email}}    Subject: {{title}}
-```
-
-y su cuerpo debe incluir `{{message}}` para mostrar el detalle completo
-que le manda el código (empresa, teléfono, colores, imágenes, secciones,
-etc.). Por ahora sólo existe un template en EmailJS, así que se reutiliza
-para los dos correos (lead inicial y solicitud final), diferenciados por
-asunto y cuerpo.
-
-**Aviso importante:** esta app es una SPA sin backend, así que estos
-valores terminan igual incrustados en el JS que descarga cualquier
-visitante una vez publicado el sitio — GitHub Secrets evita que vivan en
-el código-fuente o el historial de git del repo, pero no los "esconde" del
-sitio en producción (eso es inherente a que EmailJS funcione 100% desde el
-navegador, no un descuido de esta app). La mitigación real contra abuso es
-restringir los dominios permitidos para el Public Key desde el dashboard
-de EmailJS (**Account → Security → Allowed origins**), limitándolo al
-dominio real del sitio.
-
-Mientras estas variables no estén configuradas, la app sigue funcionando
-con normalidad: sólo se omite el envío de correo (se avisa por consola) y
-el lead queda guardado en `localStorage`.
+Mientras `VITE_MAILER_URL` no resuelva a un Worker desplegado y con el
+secreto configurado, la app sigue funcionando con normalidad: sólo se
+omite el envío de correo (se avisa por consola) y el lead queda guardado
+en `localStorage`.
 
 ## Desarrollo
 
@@ -104,5 +94,7 @@ src/
     Home.tsx           Portada
     DemoBuilder.tsx     Página de la web de muestra + panel de personalización
   demo/                Componentes y contenido de la web de muestra (estilo "punk")
-  lib/                 emailjs.ts, storage.ts, placeholderImage.ts, asset.ts
+  lib/                 mailer.ts, storage.ts, imageResize.ts, placeholderImage.ts, asset.ts
+worker/
+  mailer.js            Worker de Cloudflare que envía los correos vía Resend
 ```

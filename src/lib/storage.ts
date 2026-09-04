@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
 // Respaldo local de leads en localStorage. Esta app no tiene backend, así
-// que el correo (EmailJS) es la vía principal para enterarnos de una
+// que el correo (vía el Worker/Resend) es la vía principal para enterarnos de una
 // solicitud — este storage es sólo una red de seguridad adicional: si
-// EmailJS falla o no está configurado, el lead no se pierde del todo y
+// el Worker falla o no está configurado, el lead no se pierde del todo y
 // queda disponible en el navegador del propio visitante (localStorage.getItem
 // desde la consola: "ptw_leads").
 //
