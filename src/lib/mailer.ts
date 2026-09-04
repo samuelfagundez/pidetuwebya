@@ -10,9 +10,18 @@
 // como valor por defecto aquí mismo (igual que WHATSAPP_NUMBER en
 // content.ts), sobreescribible con VITE_MAILER_URL por si el Worker
 // cambia de nombre/dominio sin tener que tocar código.
-const MAILER_URL =
+// normalizeUrl: por si VITE_MAILER_URL se configura sin el "https://" (p.
+// ej. en la Variable del repo) — sin esquema, fetch() la trata como una
+// ruta RELATIVA al propio sitio en vez de una URL externa, y termina
+// pidiéndole a GitHub Pages algo que no existe (404/405) en silencio.
+function normalizeUrl(url: string): string {
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+}
+
+const MAILER_URL = normalizeUrl(
   import.meta.env.VITE_MAILER_URL ||
-  "https://pidetuwebya-mailer.samuelfagundez97.workers.dev";
+    "https://pidetuwebya-mailer.samuelfagundez97.workers.dev",
+);
 
 export interface MailAttachment {
   /** Nombre de archivo tal como lo verá quien reciba el correo. */
