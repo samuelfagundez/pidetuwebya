@@ -3,6 +3,7 @@ import type { DemoContent } from "./demoTypes";
 
 export const DEMO_DEFAULT_PRIMARY = "#2c3a5e";
 export const DEMO_DEFAULT_SECONDARY = "#1e2a47";
+export const DEMO_DEFAULT_ADDRESS = "Calle Ejemplo 123, Tu Ciudad";
 
 /**
  * Genera el contenido moqueado de la web de muestra a partir del nombre de
@@ -24,8 +25,7 @@ export function buildDemoContent(
     description: `Esta es una vista previa de cómo ${name} podría lucir en internet: una página rápida, moderna y lista para atraer clientes. Todo el contenido de esta demo es de muestra — personaliza los colores, la foto de portada y la galería en el panel de abajo para acercarte a tu idea, y pulsa "Solicitar web ya" cuando quieras que la hagamos realidad.`,
     phone,
     email,
-    address: "Calle Ejemplo 123, Tu Ciudad",
-    mapLink: "",
+    address: DEMO_DEFAULT_ADDRESS,
     hours: [
       { day: "Lunes a viernes", hours: "9:00 – 19:00" },
       { day: "Sábado", hours: "10:00 – 14:00" },

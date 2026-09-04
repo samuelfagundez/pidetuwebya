@@ -1,3 +1,4 @@
+import { DEMO_DEFAULT_ADDRESS } from "./demoContent";
 import type { DemoContent } from "./demoTypes";
 
 interface Props {
@@ -11,20 +12,27 @@ const PinIcon = () => (
 );
 
 /**
- * Sección "Ubicación". Google Maps da dos tipos de link distintos:
- *  - "Compartir" (maps.app.goo.gl/... o /maps/place/...): pensado para
- *    abrir en el navegador/app, Google lo bloquea si se intenta meter en
- *    un <iframe> de otra página.
- *  - "Compartir o insertar un mapa" -> pestaña "Insertar un mapa"
- *    (/maps/embed?pb=...): ese SÍ está pensado para incrustarse, y es el
- *    que permite mostrar el mapa real (igual que en la web de referencia).
- * Detectamos cuál pegó el cliente por la URL: si es de tipo "embed", se
- * muestra el mapa real; si es de tipo "compartir", una tarjeta con botón
- * (intentar embeberlo daría una página en blanco). Sin ningún link, un
- * mapa ilustrativo como preview de lo que iría en la web real.
+ * Sección "Ubicación": el cliente escribe su dirección real (texto libre,
+ * sin necesidad de conseguir ningún link de Google Maps) y armamos el mapa
+ * nosotros mismos con ella — sin API key ni servicio de geocodificación de
+ * por medio, usando el modo "embed" que expone el propio buscador de Maps
+ * a partir de una búsqueda de texto (gratis, sin registro, sin límites de
+ * uso para este volumen).
+ *
+ * Mientras la dirección siga siendo la de muestra (no personalizada), se
+ * muestra un mapa ilustrativo en vez de intentar geolocalizar una
+ * dirección que no existe.
  */
 export default function DemoLocation({ content }: Props) {
-  const isEmbeddable = /\/maps\/embed/.test(content.mapLink);
+  const isCustomAddress =
+    content.address.trim() && content.address.trim() !== DEMO_DEFAULT_ADDRESS;
+
+  const embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(
+    content.address,
+  )}&z=15&output=embed`;
+  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    content.address,
+  )}`;
 
   return (
     <section id="demo-ubicacion" className="bg-black/[0.02] py-20">
@@ -34,36 +42,30 @@ export default function DemoLocation({ content }: Props) {
         </h2>
         <p className="mt-2 text-center text-black/60">{content.address}</p>
 
-        {isEmbeddable ? (
-          <div className="mt-8 overflow-hidden rounded-xl border border-black/10">
-            <iframe
-              title={`Mapa de ubicación de ${content.name}`}
-              src={content.mapLink}
-              width="100%"
-              height="420"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              style={{ border: 0 }}
-            />
-          </div>
-        ) : content.mapLink ? (
-          <div className="mt-8 flex flex-col items-center gap-4 rounded-xl border border-black/10 bg-white px-6 py-12 text-center">
-            <span className="text-[var(--color-brand)]">
-              <PinIcon />
-            </span>
-            <p className="font-display text-lg font-semibold text-[var(--color-brand-dark)]">
-              {content.name}
-            </p>
-            <p className="text-sm text-black/50">{content.address}</p>
-            <a
-              href={content.mapLink}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="mt-2 inline-flex items-center justify-center rounded-md bg-[var(--color-brand)] px-6 py-3 font-semibold text-white transition hover:bg-[var(--color-brand-dark)]"
-            >
-              Ver ubicación en Google Maps →
-            </a>
-          </div>
+        {isCustomAddress ? (
+          <>
+            <div className="mt-8 overflow-hidden rounded-xl border border-black/10">
+              <iframe
+                title={`Mapa de ubicación de ${content.name}`}
+                src={embedSrc}
+                width="100%"
+                height="420"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                style={{ border: 0 }}
+              />
+            </div>
+            <div className="mt-4 text-center">
+              <a
+                href={mapsLink}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="text-sm font-medium text-[var(--color-brand)] hover:underline"
+              >
+                Ver en Google Maps →
+              </a>
+            </div>
+          </>
         ) : (
           <>
             <div className="relative mt-8 flex h-[320px] items-center justify-center overflow-hidden rounded-xl border border-black/10 bg-white">
@@ -82,8 +84,8 @@ export default function DemoLocation({ content }: Props) {
               </div>
             </div>
             <p className="mt-3 text-center text-xs text-black/40">
-              En tu web real aquí va un mapa interactivo con la ubicación
-              exacta de tu negocio.
+              Escribe tu dirección real en "Personaliza tu web" y aquí
+              aparecerá el mapa de verdad.
             </p>
           </>
         )}

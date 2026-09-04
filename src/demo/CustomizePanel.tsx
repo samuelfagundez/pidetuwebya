@@ -59,7 +59,7 @@ export default function CustomizePanel({
   const [imageError, setImageError] = useState<string | null>(null);
   const [tagline, setTagline] = useState(base.tagline);
   const [description, setDescription] = useState(base.description);
-  const [mapLink, setMapLink] = useState(base.mapLink);
+  const [address, setAddress] = useState(base.address);
   const [sections, setSections] = useState<DemoSections>(base.sections);
   const [otherSection, setOtherSection] = useState("");
   const [phone, setPhone] = useState(lead.phone);
@@ -202,7 +202,7 @@ export default function CustomizePanel({
       gallery,
       tagline: tagline.trim() || base.tagline,
       description: description.trim() || base.description,
-      mapLink: mapLink.trim(),
+      address: address.trim() || base.address,
       sections,
       phone: phone.trim(),
       email: email.trim(),
@@ -221,7 +221,7 @@ export default function CustomizePanel({
       galleryImagesUploaded: galleryUploads.length,
       tagline: next.tagline,
       description: next.description,
-      mapLink: next.mapLink,
+      address: next.address,
       sections,
       otherSectionRequest: otherSection.trim(),
     });
@@ -258,7 +258,7 @@ export default function CustomizePanel({
         `Imágenes de carrusel subidas: ${galleryUploads.length}${galleryUploads.length > 0 ? " (adjuntas)" : ""}`,
         `Descripción breve (banner): ${next.tagline}`,
         `Sobre el negocio: ${next.description}`,
-        `Link de Google Maps: ${next.mapLink || "(no proporcionado)"}`,
+        `Dirección: ${next.address}`,
         `Secciones visibles: ${sectionsVisibles}`,
         `Otra sección solicitada: ${otherSection.trim() || "(ninguna)"}`,
       ].join("\n"),
@@ -533,24 +533,20 @@ export default function CustomizePanel({
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium" htmlFor="mapLink">
-                  Link de Google Maps de tu negocio
+                <label className="block text-sm font-medium" htmlFor="address">
+                  Dirección de tu negocio
                 </label>
                 <input
-                  id="mapLink"
-                  type="url"
-                  value={mapLink}
-                  onChange={(e) => setMapLink(e.target.value)}
+                  id="address"
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
                   className="mt-1 w-full rounded-md border border-black/15 px-3 py-2 text-sm"
-                  placeholder="https://maps.app.goo.gl/..."
+                  placeholder="Ej. Calle Mayor 15, Madrid"
                 />
                 <p className="mt-1 text-xs text-black/40">
-                  Para mostrar el mapa de verdad (no solo un botón): en
-                  Google Maps busca tu negocio → "Compartir o insertar un
-                  mapa" → pestaña <strong>"Insertar un mapa"</strong> →
-                  copia el link (empieza con .../maps/embed?...). Si pegas
-                  el link normal de "Compartir", solo se muestra un botón
-                  hacia Maps.
+                  La usamos para mostrar el mapa real de tu negocio en la
+                  sección "Ubicación" — sin necesidad de buscar ningún link.
                 </p>
               </div>
 
