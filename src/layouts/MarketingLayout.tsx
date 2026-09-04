@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import FloatingWhatsApp from "../components/FloatingWhatsApp";
+import FloatingInstagram from "../components/FloatingInstagram";
 import LeadFormModal from "../components/LeadFormModal";
 import { LeadModalProvider } from "../context/LeadModalContext";
 import { useLeadModal } from "../context/useLeadModal";
@@ -43,6 +44,7 @@ export default function MarketingLayout() {
           <Outlet />
         </main>
         <Footer />
+        <FloatingInstagram />
         <FloatingWhatsApp />
         <LeadFormModal />
       </div>
