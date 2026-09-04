@@ -52,8 +52,8 @@ export const content = {
   siteUrl: "https://pidetuwebya.es/",
 
   social: {
+    instagram: "https://www.instagram.com/pidetuwebya.es/",
     // TODO(cliente): enlaces de redes sociales (dejar vacío si no aplica).
-    instagram: "",
     facebook: "",
     tiktok: "",
   },
