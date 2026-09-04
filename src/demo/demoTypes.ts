@@ -22,6 +22,9 @@ export interface DemoContent {
   phone: string;
   email: string;
   address: string;
+  /** Link a la ficha de Google Maps del negocio (opcional — el cliente lo
+   * pega en "Personaliza tu web"). Vacío = no se muestra el enlace. */
+  mapLink: string;
   hours: DemoHours[];
   banner: string;
   gallery: DemoPhoto[];

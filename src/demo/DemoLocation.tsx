@@ -40,10 +40,23 @@ export default function DemoLocation({ content }: Props) {
             <p className="text-sm text-black/50">{content.address}</p>
           </div>
         </div>
-        <p className="mt-3 text-center text-xs text-black/40">
-          En tu web real aquí va un mapa interactivo con la ubicación exacta
-          de tu negocio.
-        </p>
+        {content.mapLink ? (
+          <div className="mt-4 text-center">
+            <a
+              href={content.mapLink}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-sm font-medium text-[var(--color-brand)] hover:underline"
+            >
+              Ver en Google Maps →
+            </a>
+          </div>
+        ) : (
+          <p className="mt-3 text-center text-xs text-black/40">
+            En tu web real aquí va un mapa interactivo con la ubicación
+            exacta de tu negocio.
+          </p>
+        )}
       </div>
     </section>
   );

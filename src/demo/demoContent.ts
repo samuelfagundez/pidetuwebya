@@ -25,6 +25,7 @@ export function buildDemoContent(
     phone,
     email,
     address: "Calle Ejemplo 123, Tu Ciudad",
+    mapLink: "",
     hours: [
       { day: "Lunes a viernes", hours: "9:00 – 19:00" },
       { day: "Sábado", hours: "10:00 – 14:00" },
