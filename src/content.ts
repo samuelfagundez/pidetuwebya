@@ -28,8 +28,13 @@ export const content = {
   tagline: "Páginas web prehechas, listas para vender desde hoy.",
   description:
     "En PideTuWebYa creamos páginas web profesionales y prediseñadas para negocios que necesitan presencia online ya, sin esperar semanas ni pagar desarrollos a medida desde cero. Elige un estilo, pide tu web y en segundos verás una vista previa personalizada con el nombre y los colores de tu negocio antes de confirmar nada.",
+  // NOTA: este campo no está conectado a ningún <meta> todavía (el sitio
+  // es de una sola ruta indexable, así que el meta description real vive
+  // fijo en index.html — mantenlos sincronizados si editas uno). Si algún
+  // día se agregan más páginas indexables, aquí es donde debería
+  // conectarse un componente tipo <Seo> dinámico.
   metaDescription:
-    "PideTuWebYa: páginas web prehechas para tu negocio. Pide tu web, personalízala con tus colores y fotos, y recíbela lista para vender.",
+    "PideTuWebYa: páginas web prehechas para tu negocio. Pide tu web, personalízala con tus colores y fotos, y recíbela lista para vender en minutos.",
   keywords: [
     "páginas web prehechas",
     "crear página web rápido",
