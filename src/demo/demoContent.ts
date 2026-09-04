@@ -31,12 +31,12 @@ export function buildDemoContent(
       { day: "Domingo", hours: "Cerrado" },
     ],
     banner: placeholderImage(`${name} — Foto de portada`, 0, 1600, 900),
-    gallery: [0, 1, 2, 3].map((i) => ({
+    gallery: [0, 1, 2].map((i) => ({
       src: placeholderImage(`${name} — Foto ${i + 1}`, i, 800, 600),
       alt: `Imagen de muestra ${i + 1} de ${name}`,
     })),
     primaryColor: DEMO_DEFAULT_PRIMARY,
     secondaryColor: DEMO_DEFAULT_SECONDARY,
-    sections: { about: true, gallery: true, hours: true },
+    sections: { about: true, gallery: true, hours: true, location: true },
   };
 }

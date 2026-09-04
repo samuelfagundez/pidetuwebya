@@ -14,6 +14,12 @@ const MAX_DIMENSION_BANNER = 1600;
 const MAX_DIMENSION_GALLERY = 1400;
 const JPEG_QUALITY = 0.85;
 
+/** Límite razonable para una foto de cámara/celular actual (JPEG/HEIC de
+ * gama alta ronda 3-6MB; 8MB da margen sin dejar pasar archivos que
+ * tardarían demasiado en procesarse en el navegador). */
+export const MAX_UPLOAD_SIZE_MB = 8;
+export const MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
+
 export function resizeImageToDataUrl(
   file: File,
   maxDimension: number = MAX_DIMENSION_GALLERY,

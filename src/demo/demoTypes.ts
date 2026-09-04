@@ -12,6 +12,7 @@ export interface DemoSections {
   about: boolean;
   gallery: boolean;
   hours: boolean;
+  location: boolean;
 }
 
 export interface DemoContent {

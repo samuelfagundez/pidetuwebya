@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { contactHref } from "../content";
 import { sendWebRequestEmail } from "../lib/emailjs";
 import { saveLeadLocally } from "../lib/storage";
-import { IMAGE_MAX_DIMENSION, resizeImageToDataUrl } from "../lib/imageResize";
+import {
+  IMAGE_MAX_DIMENSION,
+  MAX_UPLOAD_SIZE_BYTES,
+  MAX_UPLOAD_SIZE_MB,
+  resizeImageToDataUrl,
+} from "../lib/imageResize";
 import type { DemoContent, DemoPhoto, DemoSections } from "./demoTypes";
 
 interface LeadState {
@@ -20,9 +25,18 @@ interface CustomizePanelProps {
 
 type Status = "idle" | "sending" | "done" | "error";
 
+/** Imagen ya subida y lista para usar, con su nombre original para
+ * mostrárselo al usuario (DemoPhoto/banner solo guardan la data URL). */
+interface UploadedImage {
+  src: string;
+  name: string;
+}
+
+const GALLERY_LIMIT = 3;
+
 /**
  * Formulario 2 — panel de personalización de la web de muestra: colores,
- * imagen de portada, hasta 4 imágenes de carrusel y qué secciones mostrar
+ * imagen de portada, hasta 3 imágenes de carrusel y qué secciones mostrar
  * ("agregar o eliminar elementos"). Los cambios NO se aplican en vivo:
  * sólo se reflejan en la vista previa al pulsar "Solicitar web ya", que
  * además dispara el segundo correo de aviso (EmailJS) con todo lo que el
@@ -36,15 +50,21 @@ export default function CustomizePanel({
   const [open, setOpen] = useState(false);
   const [primaryColor, setPrimaryColor] = useState(base.primaryColor);
   const [secondaryColor, setSecondaryColor] = useState(base.secondaryColor);
-  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [bannerUpload, setBannerUpload] = useState<UploadedImage | null>(
+    null,
+  );
   const [bannerProcessing, setBannerProcessing] = useState(false);
-  const [galleryPreviews, setGalleryPreviews] = useState<DemoPhoto[]>([]);
+  const [galleryUploads, setGalleryUploads] = useState<UploadedImage[]>([]);
   const [galleryProcessing, setGalleryProcessing] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
   const [sections, setSections] = useState<DemoSections>(base.sections);
+  const [otherSection, setOtherSection] = useState("");
   const [phone, setPhone] = useState(lead.phone);
   const [email, setEmail] = useState(lead.email);
   const [status, setStatus] = useState<Status>("idle");
+
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   async function handleBannerChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -54,13 +74,21 @@ export default function CustomizePanel({
     if (!file) return;
 
     setImageError(null);
+
+    if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+      setImageError(
+        `"${file.name}" pesa demasiado (máx. ${MAX_UPLOAD_SIZE_MB}MB). Prueba con otra foto.`,
+      );
+      return;
+    }
+
     setBannerProcessing(true);
     try {
       const dataUrl = await resizeImageToDataUrl(
         file,
         IMAGE_MAX_DIMENSION.banner,
       );
-      setBannerPreview(dataUrl);
+      setBannerUpload({ src: dataUrl, name: file.name });
     } catch {
       setImageError(
         `No se pudo cargar "${file.name}". Prueba con otra imagen (JPG o PNG).`,
@@ -71,56 +99,74 @@ export default function CustomizePanel({
   }
 
   function removeBanner() {
-    setBannerPreview(null);
+    setBannerUpload(null);
   }
 
   async function handleGalleryChange(e: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []).slice(0, 4);
+    const allFiles = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (files.length === 0) return;
+    if (allFiles.length === 0) return;
 
     setImageError(null);
+
+    const remainingSlots = GALLERY_LIMIT - galleryUploads.length;
+    const files = allFiles.slice(0, remainingSlots);
+    const tooMany = allFiles.length > remainingSlots;
+
+    const oversized = files.filter((f) => f.size > MAX_UPLOAD_SIZE_BYTES);
+    const toProcess = files.filter((f) => f.size <= MAX_UPLOAD_SIZE_BYTES);
+
     setGalleryProcessing(true);
 
-    // allSettled en vez de all: si una sola foto falla (formato raro, muy
-    // pesada, corrupta), las demás igual se guardan — antes, una falla
-    // tiraba abajo las 4 sin avisar nada.
+    // allSettled en vez de all: si una sola foto falla (formato raro,
+    // corrupta), las demás igual se guardan — antes, una falla tiraba
+    // abajo todas sin avisar nada.
     const results = await Promise.allSettled(
-      files.map((file, i) =>
+      toProcess.map((file) =>
         resizeImageToDataUrl(file, IMAGE_MAX_DIMENSION.gallery).then(
-          (src): DemoPhoto => ({
-            src,
-            alt: `Foto ${i + 1} de ${base.name} subida por el cliente`,
-          }),
+          (src): UploadedImage => ({ src, name: file.name }),
         ),
       ),
     );
 
-    const photos: DemoPhoto[] = [];
+    const uploaded: UploadedImage[] = [];
     const failedNames: string[] = [];
     results.forEach((result, i) => {
       if (result.status === "fulfilled") {
-        photos.push(result.value);
+        uploaded.push(result.value);
       } else {
-        failedNames.push(files[i].name);
+        failedNames.push(toProcess[i].name);
       }
     });
 
-    setGalleryPreviews(photos);
+    setGalleryUploads((prev) => [...prev, ...uploaded]);
     setGalleryProcessing(false);
-    if (failedNames.length > 0) {
-      setImageError(
-        `No se pudieron cargar ${failedNames.length} de ${files.length} imágenes: ${failedNames.join(", ")}.`,
+
+    const errors: string[] = [];
+    if (oversized.length > 0) {
+      errors.push(
+        `${oversized.length === 1 ? "Esta foto pesa" : "Estas fotos pesan"} más de ${MAX_UPLOAD_SIZE_MB}MB: ${oversized.map((f) => f.name).join(", ")}.`,
       );
     }
+    if (failedNames.length > 0) {
+      errors.push(
+        `No se pudieron cargar: ${failedNames.join(", ")}.`,
+      );
+    }
+    if (tooMany) {
+      errors.push(
+        `Solo puedes subir hasta ${GALLERY_LIMIT} fotos para el carrusel — se ignoraron las demás.`,
+      );
+    }
+    if (errors.length > 0) setImageError(errors.join(" "));
   }
 
   function removeGalleryPhoto(index: number) {
-    setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
+    setGalleryUploads((prev) => prev.filter((_, i) => i !== index));
   }
 
   function clearGallery() {
-    setGalleryPreviews([]);
+    setGalleryUploads([]);
   }
 
   function toggleSection(key: keyof DemoSections, checked: boolean) {
@@ -137,12 +183,20 @@ export default function CustomizePanel({
 
     setStatus("sending");
 
+    const gallery: DemoPhoto[] =
+      galleryUploads.length > 0
+        ? galleryUploads.map((u, i) => ({
+            src: u.src,
+            alt: `Foto ${i + 1} de ${base.name} subida por el cliente`,
+          }))
+        : base.gallery;
+
     const next: DemoContent = {
       ...base,
       primaryColor,
       secondaryColor,
-      banner: bannerPreview ?? base.banner,
-      gallery: galleryPreviews.length > 0 ? galleryPreviews : base.gallery,
+      banner: bannerUpload?.src ?? base.banner,
+      gallery,
       sections,
       phone: phone.trim(),
       email: email.trim(),
@@ -157,9 +211,10 @@ export default function CustomizePanel({
       email: email.trim(),
       primaryColor,
       secondaryColor,
-      bannerUploaded: Boolean(bannerPreview),
-      galleryImagesUploaded: galleryPreviews.length,
+      bannerUploaded: Boolean(bannerUpload),
+      galleryImagesUploaded: galleryUploads.length,
       sections,
+      otherSectionRequest: otherSection.trim(),
     });
 
     const sectionsVisibles = (Object.entries(sections) as [string, boolean][])
@@ -180,9 +235,10 @@ export default function CustomizePanel({
         `Correo: ${email.trim() || "(no proporcionado)"}`,
         `Color principal: ${primaryColor}`,
         `Color secundario: ${secondaryColor}`,
-        `Banner subido: ${bannerPreview ? "Sí" : "No (se usó imagen de muestra)"}`,
-        `Imágenes de carrusel subidas: ${galleryPreviews.length}`,
+        `Banner subido: ${bannerUpload ? "Sí" : "No (se usó imagen de muestra)"}`,
+        `Imágenes de carrusel subidas: ${galleryUploads.length}`,
         `Secciones visibles: ${sectionsVisibles}`,
+        `Otra sección solicitada: ${otherSection.trim() || "(ninguna)"}`,
       ].join("\n"),
     });
 
@@ -190,13 +246,13 @@ export default function CustomizePanel({
   }
 
   return (
-    <div className="sticky bottom-0 z-[60] border-t-2 border-[var(--color-gold,#d9a73b)] bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.12)]">
+    <div className="z-[60] border-b-2 border-[var(--color-gold,#d9a73b)] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between bg-[var(--color-gold,#d9a73b)]/10 px-4 py-3 text-left font-semibold transition hover:bg-[var(--color-gold,#d9a73b)]/20 sm:px-6"
       >
-        <span>🎨 Personaliza tu web {open ? "▾" : "▸"}</span>
+        <span>🎨 Click aquí para personalizar tu web {open ? "▾" : "▸"}</span>
         {status === "done" && (
           <span className="text-sm font-normal text-green-600">
             ¡Solicitud enviada!
@@ -261,89 +317,154 @@ export default function CustomizePanel({
               </div>
 
               <div>
-                <label className="block text-sm font-medium" htmlFor="banner">
+                <label className="block text-sm font-medium">
                   Imagen de portada (banner)
                 </label>
-                <input
-                  id="banner"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleBannerChange}
-                  disabled={bannerProcessing}
-                  className="mt-1 w-full text-sm"
-                />
-                {bannerProcessing && (
-                  <p className="mt-2 text-xs text-black/50">
-                    Procesando imagen...
-                  </p>
-                )}
-                {bannerPreview && !bannerProcessing && (
-                  <div className="relative mt-2 inline-block">
+
+                {!bannerUpload ? (
+                  <label
+                    htmlFor="banner"
+                    className="group mt-1 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-[var(--color-brand)]/30 bg-[var(--color-brand)]/5 px-4 py-6 text-center transition hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)]/10"
+                  >
+                    <span className="text-2xl transition-transform group-hover:scale-110">
+                      📷
+                    </span>
+                    <span className="text-sm font-semibold text-[var(--color-brand-dark)]">
+                      Subir foto de portada
+                    </span>
+                    <span className="text-xs text-black/40">
+                      JPG o PNG, máx. {MAX_UPLOAD_SIZE_MB}MB
+                    </span>
+                  </label>
+                ) : (
+                  <div className="animate-fade-in-up mt-1 flex items-center gap-3 rounded-lg border border-black/10 bg-white p-2 shadow-sm">
                     <img
-                      src={bannerPreview}
+                      src={bannerUpload.src}
                       alt="Vista previa del banner"
-                      className="h-20 w-32 rounded-md border border-black/10 object-cover"
+                      className="h-14 w-20 shrink-0 rounded-md object-cover"
                     />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        {bannerUpload.name}
+                      </p>
+                      <p className="text-xs text-green-600">
+                        ✓ Listo para usar
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => bannerInputRef.current?.click()}
+                        className="text-xs font-medium text-[var(--color-brand)] underline"
+                      >
+                        Cambiar
+                      </button>
+                    </div>
                     <button
                       type="button"
                       onClick={removeBanner}
                       aria-label="Quitar imagen de portada"
                       title="Quitar"
-                      className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs font-bold text-white transition hover:bg-red-600"
+                      className="shrink-0 rounded-full p-1.5 text-black/40 transition hover:bg-red-50 hover:text-red-600"
                     >
                       ✕
                     </button>
                   </div>
                 )}
+                {bannerProcessing && (
+                  <p className="mt-2 text-xs text-black/50">
+                    Procesando imagen...
+                  </p>
+                )}
+                <input
+                  ref={bannerInputRef}
+                  id="banner"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerChange}
+                  disabled={bannerProcessing}
+                  className="sr-only"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-medium" htmlFor="gallery">
-                  Imágenes para el carrusel (máx. 4)
+                <label className="block text-sm font-medium">
+                  Fotos para el carrusel (máx. {GALLERY_LIMIT})
                 </label>
+
+                {galleryUploads.length < GALLERY_LIMIT && (
+                  <label
+                    htmlFor="gallery"
+                    className="group mt-1 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-[var(--color-brand)]/30 bg-[var(--color-brand)]/5 px-4 py-6 text-center transition hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)]/10"
+                  >
+                    <span className="text-2xl transition-transform group-hover:scale-110">
+                      🖼️
+                    </span>
+                    <span className="text-sm font-semibold text-[var(--color-brand-dark)]">
+                      {galleryUploads.length === 0
+                        ? "Subir fotos"
+                        : "Agregar más fotos"}
+                    </span>
+                    <span className="text-xs text-black/40">
+                      Hasta {GALLERY_LIMIT - galleryUploads.length} más · JPG
+                      o PNG, máx. {MAX_UPLOAD_SIZE_MB}MB c/u
+                    </span>
+                  </label>
+                )}
+                {galleryProcessing && (
+                  <p className="mt-2 text-xs text-black/50">
+                    Procesando imágenes...
+                  </p>
+                )}
                 <input
+                  ref={galleryInputRef}
                   id="gallery"
                   type="file"
                   accept="image/*"
                   multiple
                   onChange={handleGalleryChange}
                   disabled={galleryProcessing}
-                  className="mt-1 w-full text-sm"
+                  className="sr-only"
                 />
-                {galleryProcessing && (
-                  <p className="mt-2 text-xs text-black/50">
-                    Procesando imágenes...
-                  </p>
-                )}
-                {galleryPreviews.length > 0 && !galleryProcessing && (
-                  <div className="mt-2">
-                    <div className="flex flex-wrap gap-2">
-                      {galleryPreviews.map((photo, i) => (
-                        <div key={photo.src + i} className="relative">
-                          <img
-                            src={photo.src}
-                            alt={photo.alt}
-                            className="h-16 w-16 rounded-md border border-black/10 object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryPhoto(i)}
-                            aria-label={`Quitar imagen ${i + 1} del carrusel`}
-                            title="Quitar"
-                            className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-xs font-bold text-white transition hover:bg-red-600"
-                          >
-                            ✕
-                          </button>
+
+                {galleryUploads.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    {galleryUploads.map((photo, i) => (
+                      <div
+                        key={photo.src + i}
+                        className="animate-fade-in-up flex items-center gap-3 rounded-lg border border-black/10 bg-white p-2 shadow-sm"
+                      >
+                        <img
+                          src={photo.src}
+                          alt={`Vista previa ${i + 1}`}
+                          className="h-12 w-12 shrink-0 rounded-md object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">
+                            {photo.name}
+                          </p>
+                          <p className="text-xs text-green-600">
+                            ✓ Listo para usar
+                          </p>
                         </div>
-                      ))}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={clearGallery}
-                      className="mt-2 text-xs font-medium text-black/50 underline transition hover:text-red-600"
-                    >
-                      Quitar todas
-                    </button>
+                        <button
+                          type="button"
+                          onClick={() => removeGalleryPhoto(i)}
+                          aria-label={`Quitar foto ${i + 1} del carrusel`}
+                          title="Quitar"
+                          className="shrink-0 rounded-full p-1.5 text-black/40 transition hover:bg-red-50 hover:text-red-600"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    {galleryUploads.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={clearGallery}
+                        className="text-xs font-medium text-black/50 underline transition hover:text-red-600"
+                      >
+                        Quitar todas
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -392,8 +513,35 @@ export default function CustomizePanel({
                     />
                     Horario
                   </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={sections.location}
+                      onChange={(e) =>
+                        toggleSection("location", e.target.checked)
+                      }
+                    />
+                    Ubicación
+                  </label>
                 </div>
               </fieldset>
+
+              <div className="sm:col-span-2">
+                <label
+                  className="block text-sm font-medium"
+                  htmlFor="otherSection"
+                >
+                  ¿Alguna otra sección que te gustaría agregar?
+                </label>
+                <textarea
+                  id="otherSection"
+                  value={otherSection}
+                  onChange={(e) => setOtherSection(e.target.value)}
+                  rows={2}
+                  className="mt-1 w-full rounded-md border border-black/15 px-3 py-2 text-sm"
+                  placeholder="Ej. Testimonios de clientes, preguntas frecuentes, blog..."
+                />
+              </div>
 
               <div>
                 <label className="block text-sm font-medium" htmlFor="panelPhone">

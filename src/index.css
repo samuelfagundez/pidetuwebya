@@ -82,6 +82,23 @@ h3,
   @apply inline-flex items-center justify-center rounded-md border-2 border-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-[var(--color-brand)] transition hover:bg-[var(--color-brand)] hover:text-white;
 }
 
+/* Animación de entrada para las tarjetas de imágenes subidas en el panel
+   de personalización (banner/galería de la web de muestra). */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.25s ease-out;
+}
+
 .skip-link {
   @apply sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-[var(--color-brand)] focus:px-4 focus:py-2 focus:text-white;
 }

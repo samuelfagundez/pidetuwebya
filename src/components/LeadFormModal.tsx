@@ -1,22 +1,23 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
 import { useLeadModal } from "../context/useLeadModal";
 import { sendLeadCapturedEmail } from "../lib/emailjs";
 import { saveLeadLocally } from "../lib/storage";
 
 /**
- * Formulario 1 — "Pide tu web ya": pide el nombre de la empresa y un
- * teléfono o correo de contacto (al menos uno es obligatorio). Al enviar:
+ * Formulario 1 — "Pide tu web ya": pide el nombre de la empresa, el
+ * teléfono y el correo de contacto (los tres son obligatorios). Al enviar:
  *  1. Se guarda el lead en localStorage (respaldo sin backend).
  *  2. Se dispara un correo a nosotros vía EmailJS.
- *  3. Se navega a /pide-tu-web con esos datos, donde se genera la vista
- *     previa de la web (estilo "punk") con el nombre de la empresa.
+ *  3. Se abre /pide-tu-web en una pestaña nueva, con los datos del lead
+ *     como parámetros de la URL (no por router state, para que la nueva
+ *     pestaña — que no comparte el historial de navegación — pueda leerlos
+ *     igual), donde se genera la vista previa de la web con el nombre de
+ *     la empresa.
  */
 export default function LeadFormModal() {
   const { isOpen, close } = useLeadModal();
-  const navigate = useNavigate();
 
   const [companyName, setCompanyName] = useState("");
   const [phone, setPhone] = useState("");
@@ -44,8 +45,12 @@ export default function LeadFormModal() {
       setError("Cuéntanos el nombre de tu empresa para continuar.");
       return;
     }
-    if (!phone.trim() && !email.trim()) {
-      setError("Déjanos un teléfono o un correo para poder contactarte.");
+    if (!phone.trim()) {
+      setError("El teléfono es obligatorio para poder contactarte.");
+      return;
+    }
+    if (!email.trim()) {
+      setError("El correo es obligatorio para poder contactarte.");
       return;
     }
 
@@ -60,8 +65,8 @@ export default function LeadFormModal() {
 
     saveLeadLocally({ type: "lead_captured", ...lead });
 
-    // El envío no bloquea la navegación: si EmailJS no está configurado o
-    // falla, el lead ya quedó guardado localmente y el usuario no se entera.
+    // El envío no bloquea la apertura de la pestaña: si EmailJS no está
+    // configurado o falla, el lead ya quedó guardado localmente.
     // "name"/"email"/"title" alimentan From Name / Reply To / Subject del
     // template de EmailJS; "message" es el cuerpo con el detalle completo.
     void sendLeadCapturedEmail({
@@ -71,14 +76,21 @@ export default function LeadFormModal() {
       message: [
         "Nueva solicitud desde el Formulario 1 (Pide tu web ya):",
         `Empresa: ${lead.companyName}`,
-        `Teléfono: ${lead.phone || "(no proporcionado)"}`,
-        `Correo: ${lead.email || "(no proporcionado)"}`,
+        `Teléfono: ${lead.phone}`,
+        `Correo: ${lead.email}`,
       ].join("\n"),
     });
 
+    const params = new URLSearchParams({
+      company: lead.companyName,
+      phone: lead.phone,
+      email: lead.email,
+    });
+    window.open(`/pide-tu-web?${params.toString()}`, "_blank", "noopener,noreferrer");
+
+    setSending(false);
     close();
     resetForm();
-    navigate("/pide-tu-web", { state: lead });
   }
 
   return (
@@ -88,7 +100,7 @@ export default function LeadFormModal() {
       </h2>
       <p className="mt-2 text-sm text-[var(--color-ink)]/70">
         Dinos el nombre de tu empresa y te mostramos al instante cómo podría
-        lucir tu nueva página web.
+        lucir tu nueva página web (se abre en una pestaña nueva).
       </p>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
@@ -109,11 +121,12 @@ export default function LeadFormModal() {
 
         <div>
           <label htmlFor="phone" className="block text-sm font-medium">
-            Teléfono / WhatsApp
+            Teléfono / WhatsApp *
           </label>
           <input
             id="phone"
             type="tel"
+            required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="mt-1 w-full rounded-md border border-black/15 px-3 py-2 focus:border-[var(--color-brand)] focus:outline-none"
@@ -123,11 +136,12 @@ export default function LeadFormModal() {
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium">
-            Correo electrónico
+            Correo electrónico *
           </label>
           <input
             id="email"
             type="email"
+            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="mt-1 w-full rounded-md border border-black/15 px-3 py-2 focus:border-[var(--color-brand)] focus:outline-none"
@@ -136,7 +150,7 @@ export default function LeadFormModal() {
         </div>
 
         <p className="text-xs text-[var(--color-ink)]/50">
-          * Debes dejarnos al menos un teléfono o un correo de contacto.
+          * Todos los campos son obligatorios.
         </p>
 
         {error && (
