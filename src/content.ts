@@ -16,11 +16,10 @@ export interface TeamMember {
   bio: string;
 }
 
-// TODO(cliente): número de WhatsApp en formato internacional, SIN "+"
-// (el formato que exige wa.me). Ejemplo España: 34600000000.
-// Se puede definir también con la variable de entorno VITE_WHATSAPP_NUMBER
-// (ver .env.example) para no tocar código en cada despliegue.
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || "34600000000";
+// Número de WhatsApp en formato internacional, SIN "+" (el formato que
+// exige wa.me). Sobreescribible con la variable de entorno
+// VITE_WHATSAPP_NUMBER (ver .env.example) para no tocar código si cambia.
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || "34614032089";
 
 export const content = {
   name: "PideTuWebYa",
@@ -45,11 +44,9 @@ export const content = {
   ],
 
   whatsappNumber: WHATSAPP_NUMBER,
-  // TODO(cliente): teléfono de contacto visible en pantalla (formato local).
-  phone: "",
-  phoneDisplay: "Pendiente",
-  // TODO(cliente): correo de contacto público del negocio.
-  email: "",
+  phone: "+34614032089",
+  phoneDisplay: "+34 614 03 20 89",
+  email: "contacto@pidetuwebya.es",
 
   // TODO: ajustar al dominio/URL final del sitio cuando se publique.
   siteUrl: "https://pidetuwebya.es/",
