@@ -71,7 +71,7 @@ export const content = {
       photo: "/team/samuel-fagundez.jpg",
       name: "Pedro Samuel Fagundez",
       role: "Fundador e Ingeniero de Software",
-      bio: "Ingeniero de software con más de 8 años construyendo aplicaciones web escalables para empresas internacionales. Lidera el equipo técnico de PideTuWebYa para que cada página se entregue rápida, confiable y lista para vender desde el primer día.",
+      bio: "Ingeniero de software con más de 10 años construyendo aplicaciones web escalables para empresas internacionales. Lidera el equipo técnico de PideTuWebYa para que cada página se entregue rápida, confiable y lista para vender desde el primer día.",
     },
     {
       photo: "/team/daniela-oliveira.jpg",
