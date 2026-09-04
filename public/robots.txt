@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+# La web de muestra es una herramienta interna (genera contenido de
+# prueba por cada visitante) — no aporta valor indexada en buscadores.
+Disallow: /pide-tu-web
 
 Sitemap: https://pidetuwebya.es/sitemap.xml
