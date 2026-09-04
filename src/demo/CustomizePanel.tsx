@@ -545,8 +545,12 @@ export default function CustomizePanel({
                   placeholder="https://maps.app.goo.gl/..."
                 />
                 <p className="mt-1 text-xs text-black/40">
-                  En Google Maps: busca tu negocio → Compartir → Copiar
-                  enlace.
+                  Para mostrar el mapa de verdad (no solo un botón): en
+                  Google Maps busca tu negocio → "Compartir o insertar un
+                  mapa" → pestaña <strong>"Insertar un mapa"</strong> →
+                  copia el link (empieza con .../maps/embed?...). Si pegas
+                  el link normal de "Compartir", solo se muestra un botón
+                  hacia Maps.
                 </p>
               </div>
 

@@ -11,13 +11,21 @@ const PinIcon = () => (
 );
 
 /**
- * Sección "Ubicación". Los links de "Compartir" de Google Maps
- * (maps.app.goo.gl/...) no se pueden incrustar como iframe (Google los
- * bloquea), así que en vez de intentar embeberlos mostramos una tarjeta
- * con un botón directo a Maps. Sin link, mostramos un mapa ilustrativo
- * como preview de lo que iría en la web real.
+ * Sección "Ubicación". Google Maps da dos tipos de link distintos:
+ *  - "Compartir" (maps.app.goo.gl/... o /maps/place/...): pensado para
+ *    abrir en el navegador/app, Google lo bloquea si se intenta meter en
+ *    un <iframe> de otra página.
+ *  - "Compartir o insertar un mapa" -> pestaña "Insertar un mapa"
+ *    (/maps/embed?pb=...): ese SÍ está pensado para incrustarse, y es el
+ *    que permite mostrar el mapa real (igual que en la web de referencia).
+ * Detectamos cuál pegó el cliente por la URL: si es de tipo "embed", se
+ * muestra el mapa real; si es de tipo "compartir", una tarjeta con botón
+ * (intentar embeberlo daría una página en blanco). Sin ningún link, un
+ * mapa ilustrativo como preview de lo que iría en la web real.
  */
 export default function DemoLocation({ content }: Props) {
+  const isEmbeddable = /\/maps\/embed/.test(content.mapLink);
+
   return (
     <section id="demo-ubicacion" className="bg-black/[0.02] py-20">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
@@ -26,7 +34,19 @@ export default function DemoLocation({ content }: Props) {
         </h2>
         <p className="mt-2 text-center text-black/60">{content.address}</p>
 
-        {content.mapLink ? (
+        {isEmbeddable ? (
+          <div className="mt-8 overflow-hidden rounded-xl border border-black/10">
+            <iframe
+              title={`Mapa de ubicación de ${content.name}`}
+              src={content.mapLink}
+              width="100%"
+              height="420"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              style={{ border: 0 }}
+            />
+          </div>
+        ) : content.mapLink ? (
           <div className="mt-8 flex flex-col items-center gap-4 rounded-xl border border-black/10 bg-white px-6 py-12 text-center">
             <span className="text-[var(--color-brand)]">
               <PinIcon />
