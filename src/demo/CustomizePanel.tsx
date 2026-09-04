@@ -57,6 +57,9 @@ export default function CustomizePanel({
   const [galleryUploads, setGalleryUploads] = useState<UploadedImage[]>([]);
   const [galleryProcessing, setGalleryProcessing] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [tagline, setTagline] = useState(base.tagline);
+  const [description, setDescription] = useState(base.description);
+  const [mapLink, setMapLink] = useState(base.mapLink);
   const [sections, setSections] = useState<DemoSections>(base.sections);
   const [otherSection, setOtherSection] = useState("");
   const [phone, setPhone] = useState(lead.phone);
@@ -197,6 +200,9 @@ export default function CustomizePanel({
       secondaryColor,
       banner: bannerUpload?.src ?? base.banner,
       gallery,
+      tagline: tagline.trim() || base.tagline,
+      description: description.trim() || base.description,
+      mapLink: mapLink.trim(),
       sections,
       phone: phone.trim(),
       email: email.trim(),
@@ -213,6 +219,9 @@ export default function CustomizePanel({
       secondaryColor,
       bannerUploaded: Boolean(bannerUpload),
       galleryImagesUploaded: galleryUploads.length,
+      tagline: next.tagline,
+      description: next.description,
+      mapLink: next.mapLink,
       sections,
       otherSectionRequest: otherSection.trim(),
     });
@@ -247,6 +256,9 @@ export default function CustomizePanel({
         `Color secundario: ${secondaryColor}`,
         `Banner subido: ${bannerUpload ? "Sí (adjunto)" : "No (se usó imagen de muestra)"}`,
         `Imágenes de carrusel subidas: ${galleryUploads.length}${galleryUploads.length > 0 ? " (adjuntas)" : ""}`,
+        `Descripción breve (banner): ${next.tagline}`,
+        `Sobre el negocio: ${next.description}`,
+        `Link de Google Maps: ${next.mapLink || "(no proporcionado)"}`,
         `Secciones visibles: ${sectionsVisibles}`,
         `Otra sección solicitada: ${otherSection.trim() || "(ninguna)"}`,
       ].join("\n"),
@@ -488,6 +500,55 @@ export default function CustomizePanel({
                   {imageError}
                 </p>
               )}
+
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium" htmlFor="tagline">
+                  Breve descripción (aparece sobre el banner)
+                </label>
+                <textarea
+                  id="tagline"
+                  value={tagline}
+                  onChange={(e) => setTagline(e.target.value)}
+                  rows={2}
+                  className="mt-1 w-full rounded-md border border-black/15 px-3 py-2 text-sm"
+                  placeholder="Ej. La mejor barbería del barrio, cortes clásicos y modernos."
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label
+                  className="block text-sm font-medium"
+                  htmlFor="description"
+                >
+                  Cuéntanos más sobre tu negocio (para "Sobre nosotros")
+                </label>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  className="mt-1 w-full rounded-md border border-black/15 px-3 py-2 text-sm"
+                  placeholder="Ej. Llevamos 10 años atendiendo en el barrio, especializados en..."
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium" htmlFor="mapLink">
+                  Link de Google Maps de tu negocio
+                </label>
+                <input
+                  id="mapLink"
+                  type="url"
+                  value={mapLink}
+                  onChange={(e) => setMapLink(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-black/15 px-3 py-2 text-sm"
+                  placeholder="https://maps.app.goo.gl/..."
+                />
+                <p className="mt-1 text-xs text-black/40">
+                  En Google Maps: busca tu negocio → Compartir → Copiar
+                  enlace.
+                </p>
+              </div>
 
               <fieldset className="sm:col-span-2">
                 <legend className="text-sm font-medium">
