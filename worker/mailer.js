@@ -34,6 +34,12 @@ const TO = "contacto@pidetuwebya.es";
 const MAX_ATTACHMENTS = 4;
 const MAX_ATTACHMENT_BASE64_CHARS = 12_000_000; // ~9MB decodificado
 
+// Validación básica pero más estricta que <input type="email"> (que deja
+// pasar cosas como "correo@correo", sin dominio real) — Resend rechaza el
+// envío COMPLETO si reply_to no tiene este formato, así que es mejor
+// filtrarlo acá y mandar el correo sin reply_to que perder el aviso.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin)
@@ -101,7 +107,7 @@ export default {
       subject: title,
       text: message,
     };
-    if (typeof email === "string" && email.trim()) {
+    if (typeof email === "string" && EMAIL_RE.test(email.trim())) {
       resendPayload.reply_to = email.trim();
     }
     if (resendAttachments.length > 0) {
