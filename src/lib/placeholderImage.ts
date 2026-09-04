@@ -3,7 +3,7 @@
  * hay fotos reales: fondo de color + etiqueta de texto centrada. No
  * requiere red ni assets — se genera 100% en el cliente.
  */
-const PALETTE = ["#6D5EF0", "#241F4E", "#F2B134", "#128C4A", "#3E3F5B"];
+const PALETTE = ["#2C3A5E", "#1E2A47", "#D9A73B", "#128C4A", "#3E3F5B"];
 
 function escapeXml(value: string): string {
   return value

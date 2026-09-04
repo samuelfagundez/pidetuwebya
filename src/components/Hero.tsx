@@ -8,7 +8,7 @@ export default function Hero() {
     <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-[var(--color-brand-dark)] text-white">
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(109,94,240,0.55),transparent_55%),radial-gradient(circle_at_80%_75%,rgba(242,177,52,0.35),transparent_50%)]"
+        className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(44,58,94,0.55),transparent_55%),radial-gradient(circle_at_80%_75%,rgba(217,167,59,0.35),transparent_50%)]"
       />
       <div className="relative z-10 mx-auto max-w-3xl px-4 text-center">
         <p className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1 text-xs font-semibold tracking-wide text-white/80 uppercase">
