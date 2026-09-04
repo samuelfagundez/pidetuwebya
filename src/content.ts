@@ -68,22 +68,22 @@ export const content = {
   // -------------------------------------------------------------------
   team: [
     {
-      photo: "/team/carlos-torres.jpg",
-      name: "Carlos Torres",
-      role: "Ingeniero de Infraestructura y Rendimiento",
-      bio: "Ingeniero de Telecomunicaciones especializado en redes de alta disponibilidad para proveedores de internet. En PideTuWebYa aplica esa misma exigencia técnica para que tu web cargue rápido y esté siempre en línea, sin caídas ni sorpresas.",
+      photo: "/team/samuel-fagundez.jpg",
+      name: "Pedro Samuel Fagundez",
+      role: "Fundador e Ingeniero de Software",
+      bio: "Ingeniero de software con más de 8 años construyendo aplicaciones web escalables para empresas internacionales. Lidera el equipo técnico de PideTuWebYa para que cada página se entregue rápida, confiable y lista para vender desde el primer día.",
     },
     {
       photo: "/team/daniela-oliveira.jpg",
       name: "Daniela Oliveira",
-      role: "Coordinadora de Proyectos y Producción",
-      bio: "Ingeniera de Materiales especializada en convertir requerimientos técnicos complejos en soluciones eficientes y de calidad. Coordina cada solicitud para que tu web se entregue a tiempo y con el estándar que tu marca merece.",
+      role: "Asesora de Diseño y Project Manager",
+      bio: "Coordina cada solicitud de principio a fin, cuidando que el diseño refleje la identidad de tu marca y que los tiempos de entrega se cumplan. Es el puente entre lo que imaginas para tu negocio y la web final que recibes.",
     },
     {
-      photo: "/team/samuel-fagundez.jpg",
-      name: "Samuel Fagundez",
-      role: "Fundador & Líder Técnico",
-      bio: "Ingeniero de software con más de 8 años construyendo aplicaciones web escalables para empresas internacionales. Lidera el equipo técnico de PideTuWebYa para que cada página se entregue rápida, confiable y lista para vender desde el primer día.",
+      photo: "/team/carlos-torres.jpg",
+      name: "Carlos Torres",
+      role: "Asesor de Ciberseguridad",
+      bio: "Ingeniero de Telecomunicaciones especializado en redes de alta disponibilidad para proveedores de internet. En PideTuWebYa vela por que tu web esté protegida, cargue rápido y esté siempre en línea, sin caídas ni sorpresas.",
     },
   ] as TeamMember[],
 };
