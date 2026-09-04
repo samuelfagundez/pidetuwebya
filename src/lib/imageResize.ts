@@ -8,7 +8,7 @@
  *    tardar tanto que el usuario creía que "no pasaba nada" — de ahí el
  *    bug de que seleccionar 4 fotos no guardaba ninguna.
  * 2. Ese mismo peso viaja después a localStorage y a los parámetros del
- *    correo de EmailJS — reducirlo evita tocar límites ahí también.
+ *    correo (vía el Worker) — reducirlo evita tocar límites ahí también.
  */
 const MAX_DIMENSION_BANNER = 1600;
 const MAX_DIMENSION_GALLERY = 1400;

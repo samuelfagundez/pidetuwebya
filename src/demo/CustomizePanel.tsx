@@ -39,7 +39,7 @@ const GALLERY_LIMIT = 3;
  * imagen de portada, hasta 3 imágenes de carrusel y qué secciones mostrar
  * ("agregar o eliminar elementos"). Los cambios NO se aplican en vivo:
  * sólo se reflejan en la vista previa al pulsar "Solicitar web ya", que
- * además dispara el segundo correo de aviso (EmailJS) con todo lo que el
+ * además dispara el segundo correo de aviso (vía el Worker/Resend) con todo lo que el
  * usuario configuró.
  */
 export default function CustomizePanel({
