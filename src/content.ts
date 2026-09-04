@@ -60,9 +60,9 @@ export const content = {
 
   // -------------------------------------------------------------------
   // Equipo. Las fotos van en /public/team/<archivo> — TODO(cliente): subir
-  // los 3 archivos ahí con estos nombres exactos (vía GitHub, Add file ->
-  // Upload files, en la carpeta public/team/); en cuanto existan, el sitio
-  // los toma automáticamente en el siguiente deploy. Mientras no exista el
+  // diego-lezama.jpg ahí (vía GitHub, Add file -> Upload files, en la
+  // carpeta public/team/); en cuanto exista, el sitio la toma
+  // automáticamente en el siguiente deploy. Mientras no exista el
   // archivo, se muestra un avatar de muestra generado con las iniciales
   // (ver Team.tsx).
   // -------------------------------------------------------------------
@@ -84,6 +84,12 @@ export const content = {
       name: "Carlos Torres",
       role: "Asesor de Ciberseguridad",
       bio: "Ingeniero de Telecomunicaciones especializado en redes de alta disponibilidad para proveedores de internet. En PideTuWebYa vela por que tu web esté protegida, cargue rápido y esté siempre en línea, sin caídas ni sorpresas.",
+    },
+    {
+      photo: "/team/diego-lezama.jpg",
+      name: "Diego Lezama",
+      role: "Desarrollador Web",
+      bio: "Desarrollador web full-stack encargado de programar cada página de PideTuWebYa: rápida, responsive y lista para producción. Trabaja codo a codo con el equipo técnico para que la vista previa que ves sea exactamente la web que recibes.",
     },
   ] as TeamMember[],
 };
