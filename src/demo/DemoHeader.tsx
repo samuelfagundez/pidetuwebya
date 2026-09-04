@@ -8,6 +8,7 @@ const NAV = [
   { href: "#demo-nosotros", label: "Nosotros" },
   { href: "#demo-galeria", label: "Galería" },
   { href: "#demo-horario", label: "Horario" },
+  { href: "#demo-ubicacion", label: "Ubicación" },
 ];
 
 export default function DemoHeader({ content }: Props) {
