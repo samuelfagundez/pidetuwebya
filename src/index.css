@@ -16,6 +16,12 @@
 
 html {
   scroll-behavior: smooth;
+  /* Evita que el navegador "compense" solo el scroll cuando algo arriba
+     de lo visible cambia de tamaño (típicamente al terminar de cargar la
+     fuente web y el texto reajusta líneas) — esa compensación automática
+     ("scroll anchoring") es la causa del salto/desplazamiento inesperado
+     al cargar la página en móvil. */
+  overflow-anchor: none;
 }
 
 /* Todo <button> debe verse clickable (mano al pasar el mouse), no la
