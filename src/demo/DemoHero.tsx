@@ -6,7 +6,7 @@ interface Props {
 
 export default function DemoHero({ content }: Props) {
   return (
-    <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-[var(--color-brand-dark)] text-white">
+    <section className="relative flex min-h-[70dvh] items-center justify-center overflow-hidden bg-[var(--color-brand-dark)] text-white">
       <img
         src={content.banner}
         alt=""

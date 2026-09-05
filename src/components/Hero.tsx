@@ -5,7 +5,7 @@ export default function Hero() {
   const { open } = useLeadModal();
 
   return (
-    <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-[var(--color-brand-dark)] text-white">
+    <section className="relative flex min-h-[80dvh] items-center justify-center overflow-hidden bg-[var(--color-brand-dark)] text-white">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(44,58,94,0.55),transparent_55%),radial-gradient(circle_at_80%_75%,rgba(217,167,59,0.35),transparent_50%)]"

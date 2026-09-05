@@ -34,7 +34,7 @@ function AutoOpenLeadModal() {
 export default function MarketingLayout() {
   return (
     <LeadModalProvider>
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-dvh flex-col">
         <a href="#contenido" className="skip-link">
           Saltar al contenido
         </a>

@@ -284,7 +284,7 @@ export default function CustomizePanel({
       </button>
 
       {open && (
-        <div className="max-h-[70vh] overflow-y-auto px-4 pb-6 sm:px-6">
+        <div className="max-h-[70dvh] overflow-y-auto px-4 pb-6 sm:px-6">
           {status === "done" ? (
             <div className="mx-auto max-w-md py-6 text-center">
               <p className="text-lg font-semibold text-[var(--color-brand-dark)]">

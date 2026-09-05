@@ -64,6 +64,13 @@ export default function DemoBuilder() {
     }
   }, [lead, navigate]);
 
+  // Refuerzo contra el salto de scroll al abrir la pestaña nueva en
+  // móvil: "instant" ignora el scroll-behavior:smooth global, así que
+  // esto no se ve como una animación — es solo asegurar que arranca en 0.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
+
   const [applied, setApplied] = useState<DemoContent | null>(() =>
     lead ? buildDemoContent(lead.companyName, lead.phone, lead.email) : null,
   );
@@ -76,7 +83,7 @@ export default function DemoBuilder() {
   } as CSSProperties;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-dvh bg-white">
       <div className="sticky top-0 z-[70] flex flex-wrap items-center justify-between gap-2 bg-black px-4 py-2 text-xs text-white sm:text-sm">
         <span>
           🔧 Vista previa de <strong>{applied.name}</strong> — este
